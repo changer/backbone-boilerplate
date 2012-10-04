@@ -142,6 +142,8 @@ function($, Backbone, _, loading) {
       window.scrollTo(0, android ? 1 : 0);
 
       window.console.log('☆☆☆ ' + (app.name || 'Web App') + ' started ☆☆☆');
+
+      loading(true);
     };
 
     return app;
