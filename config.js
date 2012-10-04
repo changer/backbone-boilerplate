@@ -5,21 +5,20 @@ require.config({
   paths: {
 
     jquery:          'boilerplate/libs/jquery',
-    lodash:          'boilerplate/libs/lodash',
-    backbone:        'boilerplate/libs/backbone',
-    module:          'boilerplate/libs/backbone.module',
+    lodash:          'boilerplate/libs/lodash/lodash',
+    backbone:        'boilerplate/libs/backbone/backbone',
 
-    layoutmanager:   'boilerplate/libs/backbone.layoutmanager',
-    routefilter:     'boilerplate/libs/backbone.routefilter',
-    queryparams:     'boilerplate/libs/backbone.queryparams',
+    layoutmanager:   'boilerplate/libs/backbone.layoutmanager/backbone.layoutmanager',
+    routefilter:     'boilerplate/libs/backbone.routefilter/src/backbone.routefilter',
+    queryparams:     'boilerplate/libs/backbone.queryparams/backbone.queryparams',
 
-    modal:           'boilerplate/libs/backbone.bootstrap-modal',
+    chosen:          'boilerplate/libs/chosen/chosen/chosen.jquery',
+    timeago:         'boilerplate/libs/jquery.timeago/jquery.timeago',
+    iframetransport: 'boilerplate/libs/jquery.iframe-transport/jquery.iframe-transport',
 
-    chosen:          'boilerplate/libs/chosen',
-    timeago:         'boilerplate/libs/jquery.timeago',
-    iframetransport: 'boilerplate/libs/jquery.iframe-transport',
+    bootstrap:       'boilerplate/libs/bootstrap/docs/assets/js/bootstrap',
 
-    bootstrap:       'boilerplate/bootstrap/docs/assets/js/bootstrap'
+    modal:           'boilerplate/libs/backbone.bootstrap-modal'
 
   },
 
