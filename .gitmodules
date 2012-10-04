@@ -1,0 +1,6 @@
+[submodule "chosen"]
+	path = chosen
+	url = git://github.com/harvesthq/chosen.git
+[submodule "bootstrap"]
+	path = bootstrap
+	url = git://github.com/twitter/bootstrap.git
