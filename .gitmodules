@@ -4,3 +4,33 @@
 [submodule "bootstrap"]
 	path = bootstrap
 	url = git://github.com/twitter/bootstrap.git
+[submodule "backbone.layoutmanager"]
+	path = backbone.layoutmanager
+	url = git://github.com/tbranyen/backbone.layoutmanager.git
+[submodule "backbone.routefilter"]
+	path = backbone.routefilter
+	url = git://github.com/boazsender/backbone.routefilter.git
+[submodule "requirejs"]
+	path = requirejs
+	url = git://github.com/jrburke/requirejs.git
+[submodule "backbone"]
+	path = backbone
+	url = git://github.com/documentcloud/backbone.git
+[submodule "lodash"]
+	path = lodash
+	url = git://github.com/bestiejs/lodash.git
+[submodule "almond"]
+	path = almond
+	url = git://github.com/jrburke/almond.git
+[submodule "less"]
+	path = less
+	url = git://github.com/cloudhead/less.js.git
+[submodule "backbone.queryparams"]
+	path = backbone.queryparams
+	url = git://github.com/jhudson8/backbone-query-parameters.git
+[submodule "jquery.iframe-transport"]
+	path = jquery.iframe-transport
+	url = git://github.com/cmlenz/jquery-iframe-transport.git
+[submodule "jquery.timeago"]
+	path = jquery.timeago
+	url = git://github.com/rmm5t/jquery-timeago.git
