@@ -12,12 +12,12 @@ require.config({
     routefilter:     'boilerplate/libs/backbone.routefilter',
     queryparams:     'boilerplate/libs/backbone.queryparams',
 
-    chosen:          'boilerplate/libs/chosen',
     timeago:         'boilerplate/libs/jquery.timeago',
     iframetransport: 'boilerplate/libs/jquery.iframe-transport',
 
+    chosen:          'boilerplate/libs/chosen',
+    prettyCheckable: 'boilerplate/libs/prettyCheckable',
     bootstrap:       'boilerplate/libs/bootstrap',
-
     kendoui:         'boilerplate/libs/kendoui',
 
     modal:           'boilerplate/libs/backbone.bootstrap-modal'
@@ -36,8 +36,11 @@ require.config({
 
     bootstrap:       ['jquery'],
     chosen:          ['jquery'],
+    prettyCheckable: ['jquery'],
+    kendoui:         ['jquery'],
     timeago:         ['jquery'],
     iframetransport: ['jquery']
+
   }
 
 });
