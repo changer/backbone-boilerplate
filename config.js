@@ -18,6 +18,8 @@ require.config({
 
     bootstrap:       'boilerplate/libs/bootstrap',
 
+    kendoui:       'boilerplate/libs/kendoui',
+
     modal:           'boilerplate/libs/backbone.bootstrap-modal'
 
   },
