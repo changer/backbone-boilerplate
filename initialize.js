@@ -1,13 +1,11 @@
 define([
-  'jquery',
-  'backbone',
-  'lodash',
+  'boilerplate/boot',
   'boilerplate/loading',
   'layoutmanager',
   'routefilter'
 ],
 
-function($, Backbone, _, loading) {
+function(boot, loading) {
 
   window.console = window.console || { log: function() {} };
 
