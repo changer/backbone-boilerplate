@@ -13,16 +13,6 @@ function($, Backbone, _, loading) {
 
   return function(app) {
 
-    // See https://github.com/tbranyen/backbone.layoutmanager/issues/158
-    Backbone.View.prototype.reset = function() {
-      if(this.__manager__ && this.__manager__.viewDeferred && this.__manager__.viewDeferred.done) {
-        this.__manager__.viewDeferred.done(this.render);
-      }
-      else {
-        this.render();
-      }
-    };
-
     if(app.live) {
       // Inject global afterRender trigger for loading our live jquery stuff
       var viewRender = Backbone.LayoutManager._viewRender;
@@ -96,9 +86,6 @@ function($, Backbone, _, loading) {
     });
 
     app = _.extend(app, {
-      module: function(additionalProps) {
-        return _.extend({ Views: {} }, additionalProps);
-      },
       loading: loading,
       useLayout: function(name, options) {
         var app = this,
@@ -112,6 +99,10 @@ function($, Backbone, _, loading) {
         layout.bind('afterRender', function() {
           return app.switchLayout && app.switchLayout(oldLayout, layout);
         });
+
+        layout.renderOnFetch = function() {
+          Backbone.FetchParallel(_.bind(this.render, this), _(arguments).toArray());
+        };
 
         this.layout = layout;
         return this.layout;
