@@ -1,6 +1,6 @@
 require.config({
 
-  deps: ['boot'],
+  deps: ['boilerplate/boot', 'boot'],
 
   paths: {
 
@@ -27,34 +27,7 @@ require.config({
   shim: {
     backbone: {
       deps: ['lodash', 'jquery'],
-      exports: 'Backbone',
-      init: function() {
-
-        this.Backbone.Module = function(additionalProps) {
-          return _.extend({ Views: {} }, additionalProps);
-        };
-
-        this.Backbone.FetchParallel = function(callback /* , modelsToFetch */) {
-          $.when.apply(
-            null,
-            _(arguments).chain().toArray().slice(1).flatten().map(function(model) {
-              return model.fetch().done();
-            }).value()
-          ).done(callback);
-        };
-
-        // See https://github.com/tbranyen/backbone.layoutmanager/issues/158
-        this.Backbone.View.prototype.reset = function() {
-          if(this.__manager__ && this.__manager__.viewDeferred && this.__manager__.viewDeferred.done) {
-            this.__manager__.viewDeferred.done(this.render);
-          }
-          else {
-            this.render();
-          }
-        };
-
-        return this.Backbone;
-      }
+      exports: 'Backbone'
     },
 
     layoutmanager:   ['backbone'],
