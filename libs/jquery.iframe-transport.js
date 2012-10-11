@@ -25,8 +25,9 @@
 //         });
 //     });
 
-// The plugin will construct hidden `<iframe>` and `<form>` elements, add the
-// file field(s) to that form, submit the form, and process the response.
+// The plugin will construct a hidden `<iframe>` element containing a copy of
+// the form the file field belongs to, will disable any form fields not
+// explicitly included, submit that form, and process the response.
 
 // If you want to include other form fields in the form submission, include
 // them in the `data` option, and set the `processData` option to `false`:
@@ -47,11 +48,10 @@
 // As the transport does not have access to the HTTP headers of the server
 // response, it is not as simple to make use of the automatic content type
 // detection provided by jQuery as with regular XHR. If you can't set the
-// expected response data type (for example because it may vary depending on
-// the outcome of processing by the server), you will need to employ a
-// workaround on the server side: Send back an HTML document containing just a
-// `<textarea>` element with a `data-type` attribute that specifies the MIME
-// type, and put the actual payload in the textarea:
+// expected response data type (for example because it may vary), you will
+// need to employ a workaround on the server side: Send back an HTML document
+// containing just a `<textarea>` element with a `data-type` attribute that
+// specifies the MIME type, and put the actual payload in the textarea:
 
 //     <textarea data-type="application/json">
 //       {"ok": true, "message": "Thanks so much"}
@@ -70,7 +70,7 @@
 // impossible for the javascript code to determine the HTTP status code of the
 // servers response. Effectively, all of the calls you make will look like they
 // are getting successful responses, and thus invoke the `done()` or
-// `complete()` callbacks. You can only determine communicate problems using
+// `complete()` callbacks. You can only determine communicate problems using
 // the content of the response payload. For example, consider using a JSON
 // response such as the following to indicate a problem with an uploaded file:
 
@@ -134,23 +134,32 @@
       // we add it as hidden fields to the form. This (currently) requires
       // the `processData` option to be set to false so that the data doesn't
       // get serialized to a string.
-      if (typeof(options.data) === "string" && options.data.length > 0) {
-        $.error("data must not be serialized");
-      }
+      // if (typeof(options.data) === "string" && options.data.length > 0) {
+      //   $.error("data must not be serialized");
+      // }
+
+      options.data = eval('( '+options.data+' )')
+
       $.each(options.data || {}, function(name, value) {
         if ($.isPlainObject(value)) {
           name = value.name;
           value = value.value;
         }
-        $("<input type='hidden' />").attr({name:  name, value: value}).
+        $("<input type='hidden'>").attr({name:  name, value: value}).
           appendTo(form);
       });
+
+      // if the method is PUT
+      if (options.type === 'PUT') {
+        $('<input type="hidden" name="_method" value="PUT" />').
+          appendTo(form);
+      }
 
       // Add a hidden `X-Requested-With` field with the value `IFrame` to the
       // field, to help server-side code to determine that the upload happened
       // through this transport.
-      $("<input type='hidden' value='IFrame' name='X-Requested-With' />").
-        appendTo(form);
+      // $("<input type='hidden' value='IFrame' name='X-Requested-With'>").
+      //   appendTo(form);
 
       // Move the file fields into the hidden form, but first remember their
       // original locations in the document by replacing them with disabled
@@ -167,7 +176,7 @@
         // sent.
         send: function(headers, completeCallback) {
           iframe = $("<iframe src='javascript:false;' name='" + name +
-            "' id='" + name + "' style='display:none'></iframe>");
+            "' style='display:none'></iframe>");
 
           // The first load event gets fired after the iframe has been injected
           // into the DOM, and is used to prepare the actual submission.
@@ -183,8 +192,6 @@
                 root = doc.documentElement ? doc.documentElement : doc.body,
                 textarea = root.getElementsByTagName("textarea")[0],
                 type = textarea ? textarea.getAttribute("data-type") : null,
-                status = textarea ? textarea.getAttribute("data-status") : 200,
-                statusText = textarea ? textarea.getAttribute("data-statusText") : "OK",
                 content = {
                   html: root.innerHTML,
                   text: type ?
@@ -192,7 +199,7 @@
                     root ? (root.textContent || root.innerText) : null
                 };
               cleanUp();
-              completeCallback(status, statusText, content, type ?
+              completeCallback(200, "OK", content, type ?
                 ("Content-Type: " + type) :
                 null);
             });
