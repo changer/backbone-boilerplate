@@ -1,6 +1,6 @@
 require.config({
 
-  deps: ['boot'],
+  deps: ['boilerplate/boot', 'boot'],
 
   paths: {
 
