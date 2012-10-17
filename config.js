@@ -15,7 +15,7 @@ require.config({
     timeago:         'boilerplate/libs/jquery.timeago',
     iframetransport: 'boilerplate/libs/jquery.iframe-transport',
 
-    chosen:          'boilerplate/libs/chosen',
+    select2:         'boilerplate/libs/select2',
     prettyCheckable: 'boilerplate/libs/prettyCheckable',
     bootstrap:       'boilerplate/libs/bootstrap',
     kendoui:         'boilerplate/libs/kendoui',
@@ -35,7 +35,7 @@ require.config({
     queryparams:     ['backbone'],
 
     bootstrap:       ['jquery'],
-    chosen:          ['jquery'],
+    select2:         ['jquery'],
     prettyCheckable: ['jquery'],
     kendoui:         ['jquery'],
     timeago:         ['jquery'],

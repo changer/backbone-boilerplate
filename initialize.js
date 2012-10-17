@@ -107,11 +107,15 @@ function(boot, loading) {
       }
     }, Backbone.Events);
 
-    app.start = function(router) {
+    app.start = function(router, options) {
+
+      options = options || {};
+      options.root = options.root || app.root;
+      options.pushState = options.pushState === false ? false : true;
 
       app.router = new router();
 
-      Backbone.history.start({ pushState: true, root: app.root });
+      Backbone.history.start(options);
 
       if (/_=_/.test(window.location.pathname)) {
         Backbone.history.navigate('/', true);
