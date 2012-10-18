@@ -51,8 +51,8 @@
         numbers: []
       }
     },
-    inWords: function(distanceMillis) {
-      var $l = this.settings.strings;
+    inWords: function(distanceMillis, type) {
+      var $l = (type && this.settings[type]) || this.settings.strings;
       var prefix = $l.prefixAgo;
       var suffix = $l.suffixAgo;
       if (this.settings.allowFuture) {
@@ -119,9 +119,13 @@
   };
 
   function refresh() {
+    var s = '';
+    if(/timeago-([a-z]+)/.test(this.className)) {
+      s = RegExp.$1;
+    }
     var data = prepareData(this);
     if (!isNaN(data.datetime)) {
-      $(this).text(inWords(data.datetime));
+      $(this).text(inWords(data.datetime, s));
     }
     return this;
   }
@@ -138,8 +142,8 @@
     return element.data("timeago");
   }
 
-  function inWords(date) {
-    return $t.inWords(distance(date));
+  function inWords(date, type) {
+    return $t.inWords(distance(date), type);
   }
 
   function distance(date) {
