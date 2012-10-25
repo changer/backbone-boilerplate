@@ -53,7 +53,7 @@ function(boot, loading) {
         else {
           var done = this.async();
           return $.ajax({ url: app.root + path }).then(function(contents) {
-            done(JST[path] = _.template(contents));
+            done(JST[path] = _.template(contents, null, { variable: 'context', sourceURL: path }));
           });
         }
       },
@@ -71,14 +71,13 @@ function(boot, loading) {
           path = app.root + Backbone.LayoutManager.prototype.options.paths.template + path + '.html';
           if(!JST[path]) {
             // TODO: for now we're synchronous here, might be nice to solve using async
-            JST[path] = _.template($.ajax({ async: false, url: path }).responseText);
+            JST[path] = _.template($.ajax({ async: false, url: path }).responseText, null, { variable: 'context', sourceURL: path });
           }
           var result = $(JST[path].call(context, { partial: partial, model: context })).addClass(className);
           return $('<div />').append(result).html();
         };
         return template($.extend({
-          partial: partial,
-          data: context
+          partial: partial
         }, context));
       }
     });
