@@ -58,7 +58,9 @@ define([
           if(!view.options.standalone) {
             $('body').css({ 'overflow' : 'auto' });
           }
-          $('body').removeClass('modal-open-standalone');
+          else {
+            $('body').removeClass('modal-open-standalone');
+          }
           el.remove();
         }).on('hide', function(e) {
           // standalone modals can't be closed
