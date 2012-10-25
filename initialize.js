@@ -65,15 +65,13 @@ function(boot, loading) {
             attr = className;
             className = '';
           }
-          if(attr) {
-            context = _(context).extend(attr);
-          }
+          attr = _(_(context).clone()).extend(attr || {});
           path = app.root + Backbone.LayoutManager.prototype.options.paths.template + path + '.html';
           if(!JST[path]) {
             // TODO: for now we're synchronous here, might be nice to solve using async
             JST[path] = _.template($.ajax({ async: false, url: path }).responseText, null, { variable: 'context', sourceURL: path });
           }
-          var result = $(JST[path].call(context, { partial: partial, model: context })).addClass(className);
+          var result = $(JST[path].call(context, attr)).addClass(className);
           return $('<div />').append(result).html();
         };
         return template($.extend({
