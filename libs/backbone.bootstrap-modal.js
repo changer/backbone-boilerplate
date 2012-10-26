@@ -94,7 +94,12 @@ define([
         }, this), 500);
       },
 
+      beforeRender: function() {
+        if (this.beforeModal) this.beforeModal();
+      },
+
       afterRender: function() {
+        if (this.afterModal) this.afterModal();
         this.$el.find('.close').click(_.bind(this.close, this));
         this.$el.delay(1).queue(function() {
           $(this).addClass('in');
