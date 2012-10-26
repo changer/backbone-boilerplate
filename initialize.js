@@ -65,7 +65,8 @@ function(boot, loading) {
             attr = className;
             className = '';
           }
-          attr = _(_(context).clone()).extend(attr || {});
+          attr = _(_(context || {}).clone()).extend(attr || {});
+          attr.partial = partial;
           path = app.root + Backbone.LayoutManager.prototype.options.paths.template + path + '.html';
           if(!JST[path]) {
             // TODO: for now we're synchronous here, might be nice to solve using async
