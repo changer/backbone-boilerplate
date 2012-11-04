@@ -119,10 +119,8 @@
   };
 
   function refresh() {
-    var s = '';
-    if(/timeago-([a-z]+)/.test(this.className)) {
-      s = RegExp.$1;
-    }
+    var m = this.className.match(/timeago-([a-z]+)/),
+        s = m ? m[1] : '';
     var data = prepareData(this);
     if (!isNaN(data.datetime)) {
       $(this).text(inWords(data.datetime, s));
