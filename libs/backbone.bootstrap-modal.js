@@ -67,6 +67,7 @@ define([
           if(view.options.standalone) {
             e.preventDefault();
           }
+          $('body').unbind('click.modal');
         });
 
         // Trigger hide for any click outside the modal, needed for navbar
