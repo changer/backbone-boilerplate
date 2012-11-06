@@ -61,6 +61,7 @@ define([
           else {
             $('body').removeClass('modal-open-standalone');
           }
+          $('.modal-backdrop').remove();
           el.remove();
         }).on('hide', function(e) {
           // standalone modals can't be closed
