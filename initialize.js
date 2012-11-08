@@ -2,7 +2,8 @@ define([
   'boilerplate/boot',
   'boilerplate/loading',
   'layoutmanager',
-  'routefilter'
+  'routefilter',
+  'toe'
 ],
 
 function(boot, loading) {
@@ -23,16 +24,20 @@ function(boot, loading) {
     }
 
     // JQuery Ajax global settings
+    var beforeSend = $.ajaxSettings.beforeSend,
+        complete = $.ajaxSettings.complete;
     $.ajaxSetup({
       beforeSend: function() {
         if(this.url.indexOf(app.baseUrl) === 0) {
           loading();
         }
+        return beforeSend && beforeSend();
       },
       complete: function() {
         if(this.url.indexOf(app.baseUrl) === 0) {
           loading(true);
         }
+        return complete && complete();
       }
     });
 
@@ -107,9 +112,12 @@ function(boot, loading) {
 
     app.start = function(router, options) {
 
+      var mobile = /mobile/i.test(navigator.userAgent),
+          event = mobile ? 'tap' : 'click';
+
       options = options || {};
       options.root = options.root || app.root;
-      options.pushState = options.pushState === false ? false : true;
+      options.pushState = options.pushState === false ? false : !mobile;
 
       app.router = new router();
 
@@ -119,15 +127,26 @@ function(boot, loading) {
         Backbone.history.navigate('/', true);
       }
 
-      $(document).on('click', 'a:not([data-bypass])', function(e) {
-        var href = { prop: $(this).prop('href'), attr: $(this).attr('href') };
-        var root = location.protocol + '//' + location.host + app.root;
+      $('body').on(event, 'a:not([data-bypass])', function(e) {
+        var link = $(this),
+            href = {
+              prop: link.prop('href'),
+              attr: link.attr('href')
+            };
+            root = /^http/.test(app.root) ? app.root : (location.protocol + '//' + location.host + app.root);
 
-        if (href.prop && href.prop.slice(0, root.length) === root) {
+        link.addClass('active');
+
+        if(href.prop && (/^file:\/\/\//.test(href.prop) || href.prop.slice(0, root.length) === root)) {
           e.preventDefault();
           Backbone.history.navigate(href.attr, true);
         }
       });
+      if(mobile) {
+        $('body').on('click', 'a:not([data-bypass])', function(e) {
+          e.preventDefault();
+        });
+      }
 
       var android = /android/i.test(navigator.userAgent);
       window.scrollTo(0, android ? 1 : 0);

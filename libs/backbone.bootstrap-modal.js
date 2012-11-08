@@ -18,23 +18,28 @@ define([
     Modal: Backbone.View.extend({
 
       beforeRender: function() {
-        if (this.beforeModal) this.beforeModal();
+        if(this.beforeModal) {
+          this.beforeModal();
+        }
+
+        var body = $('body');
 
         this.$el.addClass('modal-wrapper fade');
+        body.removeClass('modal-open-standalone');
+
         // default bootstrap escape event is bound to the element
         // which doesn't work correctly in our case
         $.fn.modal.Constructor.prototype.escape = function () {
           var that = this;
-          if (this.isShown && this.options.keyboard) {
-            $('body').on('keyup.dismiss.modal', function ( e ) {
+          if(this.isShown && this.options.keyboard) {
+            body.on('keyup.dismiss.modal', function (e) {
               return e.which == 27 && that.hide();
             });
           }
-          else if (!this.isShown) {
-            $('body').off('keyup.dismiss.modal');
+          else if(!this.isShown) {
+            body.off('keyup.dismiss.modal');
           }
         };
-        $('body').removeClass('modal-open-standalone');
       },
 
       hide: function() {
@@ -42,24 +47,32 @@ define([
       },
 
       afterRender: function() {
-        if (this.afterModal) this.afterModal();
+        if(this.afterModal) {
+          this.afterModal();
+        }
 
-        var view = this, el = this.$el;
+        var view = this,
+            el = this.$el,
+            body = $('body'),
+            mobile = /mobile/i.test(navigator.userAgent),
+            event = mobile ? 'tap.modal' : 'click.modal';
+
         if(view.options.standalone) {
           el.addClass('standalone');
-          $('body').addClass('modal-open-standalone');
+          body.addClass('modal-open-standalone');
         }
         else {
-          $('body').css({ 'overflow' : 'hidden' });
+          body.css({ 'overflow' : 'hidden' });
         }
+
         el.modal({
           backdrop: view.options.standalone ? false : true
         }).on('hidden', function() {
           if(!view.options.standalone) {
-            $('body').css({ 'overflow' : 'auto' });
+            body.css({ 'overflow' : 'auto' });
           }
           else {
-            $('body').removeClass('modal-open-standalone');
+            body.removeClass('modal-open-standalone');
           }
           $('.modal-backdrop').remove();
           el.remove();
@@ -68,16 +81,17 @@ define([
           if(view.options.standalone) {
             e.preventDefault();
           }
-          $('body').unbind('click.modal');
+          body.unbind(event);
         });
 
         // Trigger hide for any click outside the modal, needed for navbar
         // Defer for preventing bubbling event on loading modal
         _.defer(function() {
-          $('body').unbind('click.modal').bind('click.modal', function(e) {
+          body.unbind(event).bind(event, function(e) {
             if(!$(e.target).closest('.modal').length) {
-              $('body').unbind('click.modal');
+              body.unbind(event);
               view.hide();
+              e.stopPropagation();
             }
           });
         });
@@ -97,11 +111,15 @@ define([
       },
 
       beforeRender: function() {
-        if (this.beforeModal) this.beforeModal();
+        if(this.beforeModal) {
+          this.beforeModal();
+        }
       },
 
       afterRender: function() {
-        if (this.afterModal) this.afterModal();
+        if(this.afterModal) {
+          this.afterModal();
+        }
         this.$el.find('.close').click(_.bind(this.close, this));
         this.$el.delay(1).queue(function() {
           $(this).addClass('in');

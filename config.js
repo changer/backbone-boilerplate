@@ -14,6 +14,7 @@ require.config({
 
     timeago:         'boilerplate/libs/jquery.timeago',
     iframetransport: 'boilerplate/libs/jquery.iframe-transport',
+    toe:          'boilerplate/libs/jquery.toe',
 
     select2:         'boilerplate/libs/select2',
     prettyCheckable: 'boilerplate/libs/prettyCheckable',
@@ -39,7 +40,8 @@ require.config({
     prettyCheckable: ['jquery'],
     kendoui:         ['jquery'],
     timeago:         ['jquery'],
-    iframetransport: ['jquery']
+    iframetransport: ['jquery'],
+    toe:          ['jquery']
 
   }
 
