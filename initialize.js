@@ -115,15 +115,19 @@ function(boot, loading) {
     app.start = function(router, options) {
 
       app.mobile = /mobile/i.test(navigator.userAgent);
+      app.embedded = !/https?:\/\//.test(document.location.href);
       app.clickEvent = app.mobile ? 'tap' : 'click';
 
       if(app.mobile) {
-        $(document).addClass('mobile');
+        $('html').addClass('mobile');
+      }
+      if(app.embedded) {
+        $('html').addClass('embedded');
       }
 
       options = options || {};
       options.root = options.root || app.root;
-      options.pushState = options.pushState === false ? false : !app.mobile;
+      options.pushState = options.pushState === false ? false : !app.embedded;
 
       app.router = new router();
 
@@ -138,7 +142,7 @@ function(boot, loading) {
             href = {
               prop: link.prop('href'),
               attr: link.attr('href')
-            };
+            },
             root = /^http/.test(app.root) ? app.root : (location.protocol + '//' + location.host + app.root);
 
         if(href.prop && (/^file:\/\/\//.test(href.prop) || href.prop.slice(0, root.length) === root)) {
