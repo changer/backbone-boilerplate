@@ -135,8 +135,6 @@ function(boot, loading) {
             };
             root = /^http/.test(app.root) ? app.root : (location.protocol + '//' + location.host + app.root);
 
-        link.addClass('active');
-
         if(href.prop && (/^file:\/\/\//.test(href.prop) || href.prop.slice(0, root.length) === root)) {
           e.preventDefault();
           Backbone.history.navigate(href.attr, true);
