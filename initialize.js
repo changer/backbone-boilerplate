@@ -112,12 +112,12 @@ function(boot, loading) {
 
     app.start = function(router, options) {
 
-      var mobile = /mobile/i.test(navigator.userAgent),
-          event = mobile ? 'tap' : 'click';
+      app.mobile = /mobile/i.test(navigator.userAgent);
+      app.clickEvent = app.mobile ? 'tap' : 'click';
 
       options = options || {};
       options.root = options.root || app.root;
-      options.pushState = options.pushState === false ? false : !mobile;
+      options.pushState = options.pushState === false ? false : !app.mobile;
 
       app.router = new router();
 
@@ -127,7 +127,7 @@ function(boot, loading) {
         Backbone.history.navigate('/', true);
       }
 
-      $('body').on(event, 'a:not([data-bypass])', function(e) {
+      $('body').on(app.clickEvent, 'a:not([data-bypass])', function(e) {
         var link = $(this),
             href = {
               prop: link.prop('href'),
@@ -140,7 +140,7 @@ function(boot, loading) {
           Backbone.history.navigate(href.attr, true);
         }
       });
-      if(mobile) {
+      if(app.mobile) {
         $('body').on('click', 'a:not([data-bypass])', function(e) {
           e.preventDefault();
         });
