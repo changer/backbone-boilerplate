@@ -115,6 +115,10 @@ function(boot, loading) {
       app.mobile = /mobile/i.test(navigator.userAgent);
       app.clickEvent = app.mobile ? 'tap' : 'click';
 
+      if(app.mobile) {
+        $(document).addClass('mobile');
+      }
+
       options = options || {};
       options.root = options.root || app.root;
       options.pushState = options.pushState === false ? false : !app.mobile;
