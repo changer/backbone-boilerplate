@@ -31,7 +31,9 @@ function(boot, loading) {
         if(this.url.indexOf(app.baseUrl) === 0) {
           loading();
         }
-        return beforeSend && beforeSend();
+        if(beforeSend) {
+          return beforeSend.apply(this, _.toArray(arguments));
+        }
       },
       complete: function() {
         if(this.url.indexOf(app.baseUrl) === 0) {
