@@ -91,6 +91,7 @@ define([
             if(!$(e.target).closest('.modal').length) {
               body.unbind(event);
               view.hide();
+              e.preventDefault();
               e.stopPropagation();
             }
           });
