@@ -88,8 +88,14 @@ function(boot, loading) {
       }
     });
 
+    var mobile = /mobile/i.test(navigator.userAgent),
+        embedded = !/https?:\/\//.test(document.location.href);
+
     app = _.extend(app, {
       loading: loading,
+      mobile: mobile,
+      embedded: embedded,
+      clickEvent: mobile ? 'tap' : 'click',
       useLayout: function(name, options) {
         var app = this,
             oldLayout = this.layout,
@@ -113,10 +119,6 @@ function(boot, loading) {
     }, Backbone.Events);
 
     app.start = function(router, options) {
-
-      app.mobile = /mobile/i.test(navigator.userAgent);
-      app.embedded = !/https?:\/\//.test(document.location.href);
-      app.clickEvent = app.mobile ? 'tap' : 'click';
 
       if(app.mobile) {
         $('html').addClass('mobile');
