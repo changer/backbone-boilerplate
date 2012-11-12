@@ -57,19 +57,21 @@ define([
             mobile = /mobile/i.test(navigator.userAgent),
             event = mobile ? 'tap.modal' : 'click.modal';
 
+        body.unbind(event);
+
         if(view.options.standalone) {
           el.addClass('standalone');
           body.addClass('modal-open-standalone');
         }
         else {
-          body.css({ 'overflow' : 'hidden' });
+          body.addClass('modal-open').css({ 'overflow' : 'hidden' });
         }
 
         el.modal({
-          backdrop: view.options.standalone ? false : true
+          backdrop: view.options.standalone ? false : 'static'
         }).on('hidden', function() {
           if(!view.options.standalone) {
-            body.css({ 'overflow' : 'auto' });
+            body.removeClass('modal-open').css({ 'overflow' : 'auto' });
           }
           else {
             body.removeClass('modal-open-standalone');
@@ -77,22 +79,27 @@ define([
           $('.modal-backdrop').remove();
           el.remove();
         }).on('hide', function(e) {
+          body.unbind(event);
           // standalone modals can't be closed
           if(view.options.standalone) {
             e.preventDefault();
           }
-          body.unbind(event);
         });
 
         // Trigger hide for any click outside the modal, needed for navbar
         // Defer for preventing bubbling event on loading modal
         _.defer(function() {
-          body.unbind(event).bind(event, function(e) {
+          body.bind(event, function(e) {
             if(!$(e.target).closest('.modal').length) {
+              $('.modal-backdrop').unbind('click');
               body.unbind(event);
-              view.hide();
               e.preventDefault();
               e.stopPropagation();
+              $('html').one('touchend', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+              });
+              view.hide();
             }
           });
         });
