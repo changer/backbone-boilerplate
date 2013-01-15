@@ -50,7 +50,7 @@ function(boot, loading) {
     Backbone.LayoutManager.configure({
       manage: true,
 
-      paths: app.paths,
+      prefix: app.prefix,
 
       fetch: function(path) {
         path = path + '.html';
@@ -74,7 +74,7 @@ function(boot, loading) {
           }
           attr = _(_(context || {}).clone()).extend(attr || {});
           attr.partial = partial;
-          path = Backbone.LayoutManager.prototype.options.paths.template + path + '.html';
+          path = Backbone.LayoutManager.prototype.options.prefix + path + '.html';
           if(!JST[path]) {
             // TODO: for now we're synchronous here, might be nice to solve using async
             JST[path] = _.template($.ajax({ async: false, url: app.root + path }).responseText, null, { variable: 'context', sourceURL: path });
@@ -130,6 +130,7 @@ function(boot, loading) {
       options = options || {};
       options.root = options.root || app.root;
       options.pushState = options.pushState === false ? false : !app.embedded;
+      options.bypassSelectors = options.bypassSelectors || 'a:not([data-bypass])';
 
       app.router = new router();
 
@@ -139,7 +140,7 @@ function(boot, loading) {
         Backbone.history.navigate('/', true);
       }
 
-      $('body').on(app.clickEvent, 'a:not([data-bypass])', function(e) {
+      $('body').on(app.clickEvent, options.bypassSelectors, function(e) {
         var link = $(this),
             href = {
               prop: link.prop('href'),
