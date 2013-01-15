@@ -19,3 +19,8 @@ This will take a while as all libraries will be cloned from Github.
 Now you can start building your app!
 
 # Happy coding
+
+# Upgrade layoutmanager 0.6.6 to 0.7.5:
+
+- change paths: { ... } to prefix: '...' in app.js
+- merge layouts folder with templates folder (layout templates now to be in root of templates)
