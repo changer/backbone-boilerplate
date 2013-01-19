@@ -10,9 +10,8 @@
  **/
 define([
   'jquery',
-  'lodash',
   'backbone'
-], function($, _, Backbone) {
+], function($, Backbone) {
 
   return {
     Modal: Backbone.View.extend({
