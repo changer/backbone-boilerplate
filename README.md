@@ -24,3 +24,8 @@ Now you can start building your app!
 
 - change paths: { ... } to prefix: '...' in app.js
 - merge layouts folder with templates folder (layout templates now to be in root of templates)
+
+# Upgrade to layoutmanager 0.8:
+
+- change 'append' to 'insert', for custom insert functions
+- use Backbone.Layout instead of Backbone.LayoutManager
