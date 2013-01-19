@@ -14,8 +14,8 @@ function(boot, loading) {
 
     if(app.live) {
       // Inject global afterRender trigger for loading our live jquery stuff
-      var viewRender = Backbone.LayoutManager._viewRender;
-      Backbone.LayoutManager._viewRender = function(root) {
+      var viewRender = Backbone.Layout._viewRender;
+      Backbone.Layout._viewRender = function(root) {
         root.on('afterRender', function() {
           app.live(root.el);
         });
@@ -47,7 +47,7 @@ function(boot, loading) {
     var JST = window.JST = window.JST || {};
 
     // Configure LayoutManager with Backbone Boilerplate defaults.
-    Backbone.LayoutManager.configure({
+    Backbone.Layout.configure({
       manage: true,
 
       prefix: app.prefix,
@@ -74,12 +74,12 @@ function(boot, loading) {
           }
           attr = _(_(context || {}).clone()).extend(attr || {});
           attr.partial = partial;
-          path = Backbone.LayoutManager.prototype.options.prefix + path + '.html';
+          path = Backbone.Layout.prototype.options.prefix + path + '.html';
           if(!JST[path]) {
             // TODO: for now we're synchronous here, might be nice to solve using async
             JST[path] = _.template($.ajax({ async: false, url: app.root + path }).responseText, null, { variable: 'context', sourceURL: path });
           }
-          var result = $(JST[path].call(context, attr)).addClass(className);
+          var result = $($.trim(JST[path].call(context, attr))).addClass(className);
           return $('<div />').append(result).html();
         };
         return template($.extend({
