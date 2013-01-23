@@ -82,9 +82,9 @@ function(boot, loading) {
           var result = $($.trim(JST[path].call(context, attr))).addClass(className);
           return $('<div />').append(result).html();
         };
-        return template($.extend({
+        return $.trim(template($.extend({
           partial: partial
-        }, context));
+        }, context)));
       }
     });
 
