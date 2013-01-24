@@ -151,7 +151,9 @@ function(boot, loading) {
 
         if(href.prop && (/^file:\/\/\//.test(href.prop) || href.prop.slice(0, root.length) === root)) {
           e.preventDefault();
+          Backbone.history.reloaded = false;
           if(options.alwaysReload && Backbone.history.fragment === href.attr.replace(/^\/+/, '')) {
+            Backbone.history.reloaded = true;
             Backbone.history.loadUrl(href.attr);
           }
           else {
