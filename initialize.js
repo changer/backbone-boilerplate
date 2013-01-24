@@ -131,6 +131,7 @@ function(boot, loading) {
       options.root = options.root || app.root;
       options.pushState = options.pushState === false ? false : !app.embedded;
       options.bypassSelectors = options.bypassSelectors || 'a:not([data-bypass])';
+      options.alwaysReload = options.alwaysReload || false;
 
       app.router = new router();
 
@@ -150,7 +151,12 @@ function(boot, loading) {
 
         if(href.prop && (/^file:\/\/\//.test(href.prop) || href.prop.slice(0, root.length) === root)) {
           e.preventDefault();
-          Backbone.history.navigate(href.attr, true);
+          if(options.alwaysReload && Backbone.history.fragment === href.attr.replace(/^\/+/, '')) {
+            Backbone.history.loadUrl(href.attr);
+          }
+          else {
+            Backbone.history.navigate(href.attr, true);
+          }
         }
       });
       if(app.mobile) {
