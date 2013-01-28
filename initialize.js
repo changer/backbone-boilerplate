@@ -131,7 +131,7 @@ function(boot, loading) {
       options = options || {};
       options.root = options.root || app.root;
       options.pushState = options.pushState === false ? false : !app.embedded;
-      options.bypassSelectors = options.bypassSelectors || 'a:not([data-bypass])';
+      options.bypassSelectors = options.bypassSelectors || 'a[href]:not([data-bypass])';
       options.alwaysReload = options.alwaysReload || false;
 
       app.router = new router();
@@ -150,7 +150,7 @@ function(boot, loading) {
             },
             root = /^http/.test(app.root) ? app.root : (location.protocol + '//' + location.host + app.root);
 
-        if(href.prop && (/^file:\/\/\//.test(href.prop) || href.prop.slice(0, root.length) === root)) {
+        if((/^file:\/\/\//.test(href.prop) || href.prop.slice(0, root.length) === root)) {
           e.preventDefault();
           Backbone.history.reloaded = false;
           if(options.alwaysReload && Backbone.history.fragment === href.attr.replace(/^\/+/, '')) {
