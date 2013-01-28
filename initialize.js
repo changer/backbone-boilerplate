@@ -82,9 +82,10 @@ function(boot, loading) {
           var result = $($.trim(JST[path].call(context, attr))).addClass(className);
           return $('<div />').append(result).html();
         };
+        // Return trimmed version of template, however always at least an empty space for preventing caching issues
         return $.trim(template($.extend({
           partial: partial
-        }, context)));
+        }, context))) || ' ';
       }
     });
 
