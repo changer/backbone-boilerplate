@@ -9,6 +9,7 @@ define([
 function(boot, loading) {
 
   window.console = window.console || { log: function() {} };
+  var html = $('html'), body = $('body');
 
   return function(app) {
 
@@ -122,10 +123,10 @@ function(boot, loading) {
     app.start = function(router, options) {
 
       if(app.mobile) {
-        $('html').addClass('mobile');
+        html.addClass('mobile');
       }
       if(app.embedded) {
-        $('html').addClass('embedded');
+        html.addClass('embedded');
       }
 
       options = options || {};
@@ -142,7 +143,7 @@ function(boot, loading) {
         Backbone.history.navigate('/', true);
       }
 
-      $('body').on(app.clickEvent, options.bypassSelectors, function(e) {
+      body.on(app.clickEvent, options.bypassSelectors, function(e) {
         var link = $(this),
             href = {
               prop: link.prop('href'),
@@ -163,8 +164,12 @@ function(boot, loading) {
         }
       });
       if(app.mobile) {
-        $('body').on('click', 'a:not([data-bypass])', function(e) {
+        body.on('click', 'a:not([data-bypass])', function(e) {
           e.preventDefault();
+        });
+        html.addClass('untouched');
+        body.one('touchstart', function() {
+          html.removeClass('untouched');
         });
       }
 
