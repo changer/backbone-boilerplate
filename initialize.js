@@ -90,12 +90,16 @@ function(boot, loading) {
       }
     });
 
-    var mobile = /mobile/i.test(navigator.userAgent),
+    var mobile = /(android|mobile)/i.test(navigator.userAgent),
+        phone = /(android|phone)/i.test(navigator.userAgent),
+        android = /android/i.test(navigator.userAgent),
         embedded = !/https?:\/\//.test(document.location.href);
 
     app = _.extend(app, {
       loading: loading,
       mobile: mobile,
+      phone: phone,
+      android: android,
       embedded: embedded,
       clickEvent: mobile ? 'tap' : 'click',
       useLayout: function(name, options) {
@@ -173,8 +177,9 @@ function(boot, loading) {
         });
       }
 
-      var android = /android/i.test(navigator.userAgent);
-      window.scrollTo(0, android ? 1 : 0);
+      if(phone) {
+        window.scrollTo(0, android ? 1 : 0);
+      }
 
       window.console.log('☆☆☆ ' + (app.name || 'Web App') + ' started ☆☆☆');
 
