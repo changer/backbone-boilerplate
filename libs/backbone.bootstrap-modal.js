@@ -68,7 +68,10 @@ define([
 
         el.modal({
           backdrop: view.options.standalone ? false : 'static'
-        }).on('hidden', function() {
+        }).on('hidden', function(e) {
+          if(el.get(0) !== e.target) {
+            return;
+          }
           if(!view.options.standalone) {
             body.removeClass('modal-open').css({ 'overflow' : 'auto' });
           }
@@ -78,6 +81,9 @@ define([
           $('.modal-backdrop').remove();
           el.remove();
         }).on('hide', function(e) {
+          if(el.get(0) !== e.target) {
+            return;
+          }
           body.unbind(event);
           // standalone modals can't be closed
           if(view.options.standalone) {
