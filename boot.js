@@ -1,7 +1,8 @@
 define([
   'jquery',
+  'lodash',
   'backbone'
-], function($, Backbone) {
+], function($, _, Backbone) {
 
   Backbone.Module = function(additionalProps) {
     return _.extend({ Views: {} }, additionalProps);

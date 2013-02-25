@@ -32,6 +32,10 @@ require.config({
       exports: 'Backbone'
     },
 
+    lodash: {
+        exports: '_'
+    },
+
     layoutmanager:      ['backbone'],
     routefilter:        ['backbone'],
     queryparams:        ['backbone'],
