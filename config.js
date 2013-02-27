@@ -5,6 +5,7 @@ require.config({
   paths: {
 
     jquery:             'boilerplate/libs/jquery',
+    jquerymigrate:      'boilerplate/libs/jquery-migrate',
     lodash:             'boilerplate/libs/lodash',
     backbone:           'boilerplate/libs/backbone',
 
@@ -44,7 +45,7 @@ require.config({
     notify:             ['bootstrap'],
     select2:            ['jquery'],
     prettyCheckable:    ['jquery'],
-    kendoui:            ['jquery'],
+    kendoui:            ['jquery', 'jquerymigrate'],
     timeago:            ['jquery'],
     iframetransport:    ['jquery'],
     toe:                ['jquery']
