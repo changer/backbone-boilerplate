@@ -1,6 +1,6 @@
 /*!
- * backbone.layoutmanager.js v0.8.1
- * Copyright 2012, Tim Branyen (@tbranyen)
+ * backbone.layoutmanager.js v0.8.4
+ * Copyright 2013, Tim Branyen (@tbranyen)
  * backbone.layoutmanager.js may be freely distributed under the MIT license.
  */
 (function(window) {
@@ -176,14 +176,8 @@ var LayoutManager = Backbone.View.extend({
       // If the View we are adding has already been rendered, simply inject it
       // into the parent.
       if (manager.hasRendered) {
-        // If this View is not using a dynamically created container element,
-        // use the children instead.
-        if (manager.noel) {
-          view.setElement(view.$el.children(), false);
-        }
-
         // Apply the partial.
-        options.partial(root.el, manager.selector, view.$el, manager.insert);
+        options.partial(root.$el, view.$el, root.__manager__, manager);
       }
 
       // Ensure remove is called when swapping View's.
@@ -247,31 +241,16 @@ var LayoutManager = Backbone.View.extend({
       // If there is a parent, attach.
       if (parent) {
         if (!options.contains(parent.el, root.el)) {
-          // If this View is not using a dynamically created container element,
-          // use the children instead.
-          if (manager.noel) {
-            root.setElement(root.$el.children(), false);
-          }
-
           // Apply the partial.
-          options.partial(parent.el, manager.selector, root.$el,
-            manager.insert);
+          options.partial(parent.$el, root.$el, rentManager, manager);
         }
       }
 
       // Ensure events are always correctly bound after rendering.
       root.delegateEvents();
 
-      // If no parent, ensure the elements are still set correctly.
-      if (!parent && manager.noel) {
-        root.setElement(root.$el.children(), false);
-      }
-
       // Set this View as successfully rendered.
       manager.hasRendered = true;
-
-      // Resolve the deferred.
-      def.resolveWith(root, [root]);
 
       // Only process the queue if it exists.
       if (next = manager.queue.shift()) {
@@ -304,14 +283,13 @@ var LayoutManager = Backbone.View.extend({
         // Wait until the parent View has finished rendering, which could be
         // asynchronous, and trigger afterRender on this View once it has
         // compeleted.
-        return parent.once("afterRender", function() {
-          // Trigger the afterRender and set hasRendered.
-          completeRender();
-        });
+        parent.once("afterRender", completeRender);
+      } else {
+        // This View and its parent have both rendered.
+        completeRender();
       }
 
-      // This View and its parent have both rendered.
-      completeRender();
+      return def.resolveWith(root, [root]);
     }
 
     // Actually facilitate a render.
@@ -322,7 +300,7 @@ var LayoutManager = Backbone.View.extend({
       var rentManager = parent && parent.__manager__;
 
       // The `_viewRender` method is broken out to abstract away from having
-      // too much code in `processRender`.
+      // too much code in `actuallyRender`.
       root._render(LayoutManager._viewRender, options).done(function() {
         // If there are no children to worry about, complete the render
         // instantly.
@@ -357,18 +335,14 @@ var LayoutManager = Backbone.View.extend({
 
         // Once all nested Views have been rendered, resolve this View's
         // deferred.
-        options.when(promises).done(function() {
-          resolve();
-        });
+        options.when(promises).done(resolve);
       });
     }
 
     // Another render is currently happening if there is an existing queue, so
     // push a closure to render later into the queue.
     if (manager.queue) {
-      aPush.call(manager.queue, function() {
-        actuallyRender();
-      });
+      aPush.call(manager.queue, actuallyRender);
     } else {
       manager.queue = [];
 
@@ -422,7 +396,7 @@ var LayoutManager = Backbone.View.extend({
   // This gets passed to all _render methods.  The `root` value here is passed
   // from the `manage(this).render()` line in the `_render` function
   _viewRender: function(root, options) {
-    var url, contents, fetchAsync;
+    var url, contents, fetchAsync, renderedEl;
     var manager = root.__manager__;
 
     // This function is responsible for pairing the rendered template into
@@ -430,7 +404,16 @@ var LayoutManager = Backbone.View.extend({
     function applyTemplate(rendered) {
       // Actually put the rendered contents into the element.
       if (rendered) {
-        options.html(root.$el, rendered);
+        // If no container is specified, we must replace the content.
+        if (manager.noel) {
+          // Hold a reference to created element as replaceWith doesn't return new el.
+          renderedEl = root.$el.html(rendered).children();
+          root.$el.replaceWith(renderedEl);
+          // Don't delegate events here - we'll do that in resolve()
+          root.setElement(renderedEl, false);
+        } else {
+          options.html(root.$el, rendered);
+        }
       }
 
       // Resolve only after fetch and render have succeeded.
@@ -759,7 +742,7 @@ var LayoutManager = Backbone.View.extend({
 // Convenience assignment to make creating Layout's slightly shorter.
 Backbone.Layout = LayoutManager;
 // Tack on the version.
-LayoutManager.VERSION = "0.8.1";
+LayoutManager.VERSION = "0.8.4";
 
 // Override _configure to provide extra functionality that is necessary in
 // order for the render function reference to be bound during initialize.
@@ -808,12 +791,19 @@ LayoutManager.prototype.options = {
 
   // This is the most common way you will want to partially apply a view into
   // a layout.
-  partial: function(root, name, $el, insert) {
-    // If no selector is specified, assume the parent should be added to.
-    var $root = name ? $(root).find(name) : $(root);
+  partial: function($root, $el, rentManager, manager) {
+    // If selector is specified, attempt to find it.
+    if (manager.selector) {
+      if (rentManager.noel) {
+        var $filtered = $root.filter(manager.selector);
+        $root = $filtered.length ? $filtered : $root.find(manager.selector);
+      } else {
+        $root = $root.find(manager.selector);
+      }
+    }
 
     // Use the insert method if insert argument is true.
-    if (insert) {
+    if (manager.insert) {
       this.insert($root, $el);
     } else {
       this.html($root, $el);
