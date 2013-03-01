@@ -29,3 +29,8 @@ Now you can start building your app!
 
 - change 'append' to 'insert', for custom insert functions
 - use Backbone.Layout instead of Backbone.LayoutManager
+
+# Mind you!
+
+AFAIK only kendoui.js requires a commercial license, depending if your project is commercial or not.
+Make sure you check this!
