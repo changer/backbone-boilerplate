@@ -129,8 +129,14 @@ function(boot, loading) {
       if(app.mobile) {
         html.addClass('mobile');
       }
+      else {
+        html.addClass('non-mobile');
+      }
       if(app.embedded) {
         html.addClass('embedded');
+      }
+      else {
+        html.addClass('non-embedded');
       }
 
       options = options || {};
