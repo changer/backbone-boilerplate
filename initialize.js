@@ -161,7 +161,7 @@ function(boot, loading) {
             },
             root = /^http/.test(app.root) ? app.root : (location.protocol + '//' + location.host + app.root);
 
-        if((/^file:\/\/\//.test(href.prop) || href.prop.slice(0, root.length) === root)) {
+        if((/^(content|file):\/\/+/.test(href.prop) || href.prop.slice(0, root.length) === root)) {
           e.preventDefault();
           Backbone.history.reloaded = false;
           if(options.alwaysReload && Backbone.history.fragment === href.attr.replace(/^\/+/, '')) {
