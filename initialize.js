@@ -91,15 +91,17 @@ function(boot, loading) {
     });
 
     var mobile = /(android|mobile)/i.test(navigator.userAgent),
-        phone = /(android|phone)/i.test(navigator.userAgent),
         android = /android/i.test(navigator.userAgent),
+        ios = /(iphone|ipad)/i.test(navigator.userAgent),
+        phone = /(android|phone)/i.test(navigator.userAgent),
         embedded = !/https?:\/\//.test(document.location.href);
 
     app = _.extend(app, {
       loading: loading,
       mobile: mobile,
-      phone: phone,
       android: android,
+      ios: ios,
+      phone: phone,
       embedded: embedded,
       clickEvent: mobile ? 'tap' : 'click',
       useLayout: function(name, options) {
@@ -128,6 +130,12 @@ function(boot, loading) {
 
       if(app.mobile) {
         html.addClass('mobile');
+        if(ios) {
+          html.addClass('ios');
+        }
+        if(android) {
+          html.addClass('android');
+        }
       }
       else {
         html.addClass('non-mobile');
