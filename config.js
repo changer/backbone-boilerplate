@@ -17,6 +17,9 @@ require.config({
     iframetransport:    'boilerplate/libs/jquery.iframe-transport',
     toe:                'boilerplate/libs/jquery.toe',
 
+    jed:                'boilerplate/libs/jed',
+    po2json:            'boilerplate/libs/po2json',
+
     select2:            'boilerplate/libs/select2',
     prettyCheckable:    'boilerplate/libs/prettyCheckable',
     bootstrap:          'boilerplate/libs/bootstrap',
