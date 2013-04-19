@@ -47,6 +47,23 @@ function(boot, loading) {
     // Localize or create a new JavaScript Template object.
     var JST = window.JST = window.JST || {};
 
+    // Partial templates
+    var partial = function(path, context, className, attr) {
+      if(typeof(className) !== 'string') {
+        attr = className;
+        className = '';
+      }
+      attr = _(_(context || {}).clone()).extend(attr || {});
+      attr.partial = partial;
+      path = Backbone.Layout.prototype.options.prefix + path + '.html';
+      if(!JST[path]) {
+        // TODO: for now we're synchronous here, might be nice to solve using async
+        JST[path] = _.template($.ajax({ async: false, url: app.root + path }).responseText, null, { variable: 'context', sourceURL: path });
+      }
+      var result = $($.trim(JST[path].call(context, attr))).addClass(className);
+      return $('<div />').append(result).html();
+    };
+
     // Configure LayoutManager with Backbone Boilerplate defaults.
     Backbone.Layout.configure({
       manage: true,
@@ -68,25 +85,15 @@ function(boot, loading) {
 
       // use in templates to render partial templates, like: <%= partial('template', model.partialModel) %>
       render: function(template, context) {
-        var partial = function(path, context, className, attr) {
-          if(typeof(className) !== 'string') {
-            attr = className;
-            className = '';
-          }
-          attr = _(_(context || {}).clone()).extend(attr || {});
-          attr.partial = partial;
-          path = Backbone.Layout.prototype.options.prefix + path + '.html';
-          if(!JST[path]) {
-            // TODO: for now we're synchronous here, might be nice to solve using async
-            JST[path] = _.template($.ajax({ async: false, url: app.root + path }).responseText, null, { variable: 'context', sourceURL: path });
-          }
-          var result = $($.trim(JST[path].call(context, attr))).addClass(className);
-          return $('<div />').append(result).html();
-        };
-        // Return trimmed version of template, however always at least an empty space for preventing caching issues
-        return $.trim(template($.extend({
+        // Apply extension methods
+        var context_ = $.extend({
           partial: partial
-        }, context))) || ' ';
+        }, context);
+        if(app.templateContext) {
+          context_ = $.extend(app.templateContext, context_);
+        }
+        // Return trimmed version of template, however always at least an empty space for preventing caching issues
+        return $.trim(template(context_)) || ' ';
       }
     });
 
