@@ -1,4 +1,4 @@
-require.config({
+requirejs.config({
 
   deps: ['boilerplate/boot', 'boot'],
 
