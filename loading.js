@@ -1,9 +1,4 @@
-define([
-  'jquery',
-  'lodash'
-],
-
-function($, _) {
+define([], function() {
   return function(off, el) {
     off = !!off;
     el = el || $('body');
