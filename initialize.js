@@ -57,8 +57,14 @@ function(boot, loading) {
       attr.partial = partial;
       path = Backbone.Layout.prototype.options.prefix + path + '.html';
       if(!JST[path]) {
+        var url = app.root + path;
         // TODO: for now we're synchronous here, might be nice to solve using async
-        JST[path] = _.template($.ajax({ async: false, url: app.root + path }).responseText, null, { variable: 'context', sourceURL: path });
+        if(window.getStaticFile) {
+          JST[path] = _.template(getStaticFile(url), null, { variable: 'context', sourceURL: path });
+        }
+        else {
+          JST[path] = _.template($.ajax({ async: false, url: url }).responseText, null, { variable: 'context', sourceURL: path });
+        }
       }
       var result = $($.trim(JST[path].call(context, attr))).addClass(className);
       return $('<div />').append(result).html();
