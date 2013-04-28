@@ -48,27 +48,36 @@ function(boot, loading) {
     var JST = window.JST = window.JST || {};
 
     // Partial templates
-    var partial = function(path, context, className, attr) {
-      if(typeof(className) !== 'string') {
-        attr = className;
-        className = '';
-      }
-      attr = _(_(context || {}).clone()).extend(attr || {});
-      attr.partial = partial;
-      path = Backbone.Layout.prototype.options.prefix + path + '.html';
-      if(!JST[path]) {
-        var url = app.root + path;
-        // TODO: for now we're synchronous here, might be nice to solve using async
-        if(window.getStaticFile) {
-          JST[path] = _.template(getStaticFile(url), null, { variable: 'context', sourceURL: path });
-        }
-        else {
-          JST[path] = _.template($.ajax({ async: false, url: url }).responseText, null, { variable: 'context', sourceURL: path });
-        }
-      }
-      var result = $($.trim(JST[path].call(context, attr))).addClass(className);
-      return $('<div />').append(result).html();
-    };
+    var fetchTemplate = function(path, callback) {
+          var url = app.root + path;
+          if(JST[path]) {
+            return callback ? callback(JST[path]) : JST[path];
+          }
+          else if(window.getStaticFile) {
+            JST[path] = _.template(getStaticFile(url), null, { variable: 'context', sourceURL: path });
+            return callback ? callback(JST[path]) : JST[path];
+          }
+          else if(callback) {
+            return $.ajax({ url: url }).then(function(contents) {
+              callback(JST[path] = _.template(contents, null, { variable: 'context', sourceURL: path }));
+            });
+          }
+          else {
+            JST[path] = _.template($.ajax({ url: url, async: false }).responseText, null, { variable: 'context', sourceURL: path });
+            return JST[path];
+          }
+        },
+        partial = function(path, context, className, attr) {
+          if(typeof(className) !== 'string') {
+            attr = className;
+            className = '';
+          }
+          attr = _(_(context || {}).clone()).extend(attr || {});
+          attr.partial = partial;
+          path = Backbone.Layout.prototype.options.prefix + path + '.html';
+          var result = $($.trim(fetchTemplate(path).call(context, attr))).addClass(className);
+          return $('<div />').append(result).html();
+        };
 
     // Configure LayoutManager with Backbone Boilerplate defaults.
     Backbone.Layout.configure({
@@ -78,15 +87,7 @@ function(boot, loading) {
 
       fetch: function(path) {
         path = path + '.html';
-        if (JST[path]) {
-          return JST[path];
-        }
-        else {
-          var done = this.async();
-          return $.ajax({ url: app.root + path }).then(function(contents) {
-            done(JST[path] = _.template(contents, null, { variable: 'context', sourceURL: path }));
-          });
-        }
+        return JST[path] || fetchTemplate(path, this.async());
       },
 
       // use in templates to render partial templates, like: <%= partial('template', model.partialModel) %>
@@ -135,6 +136,12 @@ function(boot, loading) {
         };
 
         this.layout = layout;
+        if(!app.started) {
+          if(window.onBackboneLoad) {
+            window.onBackboneLoad(app);
+          }
+          app.started = true;
+        }
         return this.layout;
       }
     }, Backbone.Events);
@@ -165,7 +172,6 @@ function(boot, loading) {
       options.pushState = options.pushState === false ? false : !app.embedded;
       options.bypassSelectors = options.bypassSelectors || 'a[href]:not([data-bypass])';
       options.alwaysReload = options.alwaysReload || false;
-
       app.router = new router();
 
       Backbone.history.start(options);
@@ -211,6 +217,7 @@ function(boot, loading) {
       window.console.log('☆☆☆ ' + (app.name || 'Web App') + ' started ☆☆☆');
 
       loading(true);
+
     };
 
     return app;
