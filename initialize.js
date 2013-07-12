@@ -29,7 +29,7 @@ function(boot, loading) {
         complete = $.ajaxSettings.complete;
     $.ajaxSetup({
       beforeSend: function() {
-        if(this.url.indexOf(app.baseUrl) === 0) {
+        if(this.url.indexOf(app.baseUrl) === 0 || this.url.indexOf(app.root + app.prefix) === 0) {
           loading();
         }
         if(beforeSend) {
@@ -37,7 +37,7 @@ function(boot, loading) {
         }
       },
       complete: function() {
-        if(this.url.indexOf(app.baseUrl) === 0) {
+        if(this.url.indexOf(app.baseUrl) === 0 || this.url.indexOf(app.root + app.prefix) === 0) {
           loading(true);
         }
         return complete && complete();
@@ -47,6 +47,38 @@ function(boot, loading) {
     // Localize or create a new JavaScript Template object.
     var JST = window.JST = window.JST || {};
 
+    // Partial templates
+    var fetchTemplate = function(path, callback) {
+          var url = app.root + path;
+          if(JST[path]) {
+            return callback ? callback(JST[path]) : JST[path];
+          }
+          else if(window.getStaticFile) {
+            JST[path] = _.template(getStaticFile(url), null, { variable: 'context', sourceURL: path });
+            return callback ? callback(JST[path]) : JST[path];
+          }
+          else if(callback) {
+            return $.ajax({ url: url }).then(function(contents) {
+              callback(JST[path] = _.template(contents, null, { variable: 'context', sourceURL: path }));
+            });
+          }
+          else {
+            JST[path] = _.template($.ajax({ url: url, async: false }).responseText, null, { variable: 'context', sourceURL: path });
+            return JST[path];
+          }
+        },
+        partial = function(path, context, className, attr) {
+          if(typeof(className) !== 'string') {
+            attr = className;
+            className = '';
+          }
+          attr = _(_(context || {}).clone()).extend(attr || {});
+          attr.partial = partial;
+          path = Backbone.Layout.prototype.options.prefix + path + '.html';
+          var result = $($.trim(fetchTemplate(path).call(context, attr))).addClass(className);
+          return $('<div />').append(result).html();
+        };
+
     // Configure LayoutManager with Backbone Boilerplate defaults.
     Backbone.Layout.configure({
       manage: true,
@@ -55,38 +87,20 @@ function(boot, loading) {
 
       fetch: function(path) {
         path = path + '.html';
-        if (JST[path]) {
-          return JST[path];
-        }
-        else {
-          var done = this.async();
-          return $.ajax({ url: app.root + path }).then(function(contents) {
-            done(JST[path] = _.template(contents, null, { variable: 'context', sourceURL: path }));
-          });
-        }
+        return JST[path] || fetchTemplate(path, this.async());
       },
 
       // use in templates to render partial templates, like: <%= partial('template', model.partialModel) %>
       render: function(template, context) {
-        var partial = function(path, context, className, attr) {
-          if(typeof(className) !== 'string') {
-            attr = className;
-            className = '';
-          }
-          attr = _(_(context || {}).clone()).extend(attr || {});
-          attr.partial = partial;
-          path = Backbone.Layout.prototype.options.prefix + path + '.html';
-          if(!JST[path]) {
-            // TODO: for now we're synchronous here, might be nice to solve using async
-            JST[path] = _.template($.ajax({ async: false, url: app.root + path }).responseText, null, { variable: 'context', sourceURL: path });
-          }
-          var result = $($.trim(JST[path].call(context, attr))).addClass(className);
-          return $('<div />').append(result).html();
-        };
-        // Return trimmed version of template, however always at least an empty space for preventing caching issues
-        return $.trim(template($.extend({
+        // Apply extension methods
+        var context_ = $.extend({
           partial: partial
-        }, context))) || ' ';
+        }, context);
+        if(app.templateContext) {
+          context_ = $.extend(app.templateContext, context_);
+        }
+        // Return trimmed version of template, however always at least an empty space for preventing caching issues
+        return $.trim(template(context_)) || ' ';
       }
     });
 
@@ -122,6 +136,12 @@ function(boot, loading) {
         };
 
         this.layout = layout;
+        if(!app.started) {
+          if(window.onBackboneLoad) {
+            window.onBackboneLoad(app);
+          }
+          app.started = true;
+        }
         return this.layout;
       }
     }, Backbone.Events);
@@ -152,7 +172,6 @@ function(boot, loading) {
       options.pushState = options.pushState === false ? false : !app.embedded;
       options.bypassSelectors = options.bypassSelectors || 'a[href]:not([data-bypass])';
       options.alwaysReload = options.alwaysReload || false;
-
       app.router = new router();
 
       Backbone.history.start(options);
@@ -198,6 +217,7 @@ function(boot, loading) {
       window.console.log('☆☆☆ ' + (app.name || 'Web App') + ' started ☆☆☆');
 
       loading(true);
+
     };
 
     return app;
