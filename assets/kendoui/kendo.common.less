@@ -1,11 +1,11 @@
 /*
-* Kendo UI Complete v2012.3.1315 (http://kendoui.com)
+* Kendo UI Beta v2013.2.716 (http://kendoui.com)
 * Copyright 2013 Telerik AD. All rights reserved.
 *
-* Kendo UI Complete commercial licenses may be obtained at
-* https://www.kendoui.com/purchase/license-agreement/kendo-ui-complete-commercial.aspx
-* If you do not own a commercial license, this file shall be governed by the trial license terms.
+* Kendo UI Beta license terms available at
+* http://www.kendoui.com/purchase/license-agreement/kendo-ui-beta.aspx
 */
+
 /* Kendo base CSS */
 
 .transition(@transition) {
@@ -13,6 +13,13 @@
     -moz-transition: ~"@{transition}";
     -o-transition: ~"@{transition}";
     transition: ~"@{transition}";
+}
+
+.border-radius(...) {
+    -moz-border-radius: @arguments;
+    -webkit-border-radius: @arguments;
+    -o-border-radius: @arguments;
+    border-radius: @arguments;
 }
 
 /* fix for chrome 22&23 transition bugs */
@@ -145,6 +152,7 @@ a.k-button
 
 .k-ie7 .k-button { overflow: visible; margin-right: 4px; }
 .k-ie7 a.k-button { line-height: 1.6; padding-left: 7px; padding-right: 7px;/*+1*/ }
+.k-ie7 .k-slider a.k-button { height: 22px; line-height: 22px; padding: 0; }
 .k-ie7 .k-button-expand { margin-left: 0; margin-right: 0; }
 
 button.k-button::-moz-focus-inner,
@@ -190,7 +198,13 @@ body .k-button-icon
 html body .k-button-bare
 {
     background: none !important; /*spares long selectors*/
+    color: inherit;
     border-width: 0;
+}
+
+html body .k-button-bare.k-upload-button:hover
+{
+    color: inherit;
 }
 
 /* link */
@@ -211,22 +225,21 @@ html body .k-button-bare
 
 .k-state-disabled,
 .k-state-disabled .k-link,
-.k-state-disabled .k-picker-wrap .k-icon,
+.k-state-disabled .k-icon,
 .k-state-disabled .k-button,
 .k-state-disabled .k-draghandle,
-.k-state-disabled .k-slider .k-icon,
 .k-state-disabled .k-upload-button input
 {
-    cursor: default;
+    cursor: default !important;
     outline: 0;
 }
 
 @media print {
-	.k-state-disabled,
-	.k-state-disabled .k-input
-	{
-		opacity:1 !important;
-	}
+    .k-state-disabled,
+    .k-state-disabled .k-input
+    {
+        opacity:1 !important;
+    }
 }
 
 .k-state-error
@@ -257,6 +270,7 @@ html body .k-button-bare
 .sprite-hoverable(@row, @column, @grid-size: 16px) when (ispixel(@column)) {
     .sprite-position(@row, @column);
 
+    .k-link:not(.k-state-disabled):hover > &,
     .k-state-hover &,
     .k-button:hover &,
     .k-textbox:hover &,
@@ -265,14 +279,46 @@ html body .k-button-bare
     }
 }
 
+// outputs background-position and hover state background position
+.sprite-hoverable-rtl(@row, @column, @grid-size: 16px) when (ispixel(@column)) {
+
+    .k-rtl & {
+        .sprite-position(@row, @column);
+    }
+
+    .k-rtl .k-link:not(.k-state-disabled):hover > &,
+    .k-rtl .k-state-hover &,
+    .k-rtl .k-button:hover &,
+    .k-rtl .k-textbox:hover &,
+    .k-rtl .k-button:active & {
+        .sprite-position(@row - @grid-size, @column);
+    }
+}
+
 // outputs background-position and hover state background position, aligned in a grid
 .sprite-hoverable(@row, @column) when not (ispixel(@column)) {
     .sprite-position(@row, @column);
 
+    .k-link:not(.k-state-disabled):hover > &,
     .k-state-hover &,
     .k-button:hover &,
     .k-textbox:hover &,
     .k-button:active & {
+        .sprite-position(@row + 1, @column);
+    }
+}
+
+// outputs background-position and hover state background position, aligned in a grid
+.sprite-hoverable-rtl(@row, @column) when not (ispixel(@column)) {
+    .k-rtl & {
+        .sprite-position(@row, @column);
+    }
+
+    .k-rtl .k-link:not(.k-state-disabled):hover > &,
+    .k-rtl .k-state-hover &,
+    .k-rtl .k-button:hover &,
+    .k-rtl .k-textbox:hover &,
+    .k-rtl .k-button:active & {
         .sprite-position(@row + 1, @column);
     }
 }
@@ -290,8 +336,23 @@ html body .k-button-bare
     line-height: 0;
     text-indent: -3333px;
     text-align: center;
+}
+
+/* In IE7 vertical align: middle can't be overridden */
+.k-ie8 .k-icon,
+.k-ie8 .k-sprite,
+.k-ie8 .k-editor-button .k-tool-icon
+{
     vertical-align: middle;
 }
+
+:root *> .k-icon,
+:root *> .k-sprite,
+:root *> .k-editor-button .k-tool-icon
+{
+    vertical-align: middle;
+}
+
 .k-icon,
 .k-sprite
 {
@@ -299,22 +360,34 @@ html body .k-button-bare
 }
 .k-ie7 .k-icon, .k-ie7 .k-sprite { text-indent: 0; }
 
-.k-numerictextbox .k-i-arrow-n  { background-position: 0 -2px; }
-.k-numerictextbox .k-i-arrow-s { background-position: 0 -35px; }
+.k-numerictextbox .k-select .k-link span.k-i-arrow-n  { background-position: 0 -3px; }
+.k-numerictextbox .k-select .k-link span.k-i-arrow-s { background-position: 0 -35px; }
 .k-state-selected .k-i-arrow-n { .sprite-hoverable(1, 0); }
-.k-numerictextbox .k-state-selected .k-i-arrow-n, .k-numerictextbox .k-state-hover .k-i-arrow-n  { background-position: -16px -2px; }
+.k-numerictextbox .k-link.k-state-selected span.k-i-arrow-n, .k-numerictextbox .k-state-hover .k-link span.k-i-arrow-n  { background-position: -16px -3px; }
 .k-state-selected .k-i-arrow-s { .sprite-hoverable(1, 2); }
-.k-numerictextbox .k-state-selected .k-i-arrow-s, .k-numerictextbox .k-state-hover .k-i-arrow-s { background-position: -16px -35px; }
+.k-numerictextbox .k-link.k-state-selected span.k-i-arrow-s, .k-numerictextbox .k-state-hover .k-link span.k-i-arrow-s { background-position: -16px -35px; }
+
+// Remove sorting arrows hover state in grid headers
+.k-grid-header .k-link:hover span.k-i-arrow-n { .sprite-position(0, 0) }
+.k-grid-header .k-link:hover span.k-i-arrow-s { .sprite-position(0, 2) }
+.k-group-indicator .k-link:hover span.k-si-arrow-n { .sprite-position(0, -129px) }
+.k-group-indicator .k-link:hover span.k-si-arrow-s { .sprite-position(0, -159px) }
+.k-group-indicator .k-button:hover span.k-group-delete { .sprite-position(2, 1) }
+.k-scheduler .k-scheduler-toolbar .k-nav-current .k-link .k-i-calendar { .sprite-position(2, 11); }
 
 .k-i-arrow-n { .sprite-hoverable(0, 0); }
 .k-i-arrow-e { .sprite-hoverable(0, 1); }
+.k-i-arrow-w { .sprite-hoverable-rtl(0, 1); }
 .k-i-arrow-s { .sprite-hoverable(0, 2); }
 .k-i-arrow-w { .sprite-hoverable(0, 3); }
+.k-i-arrow-e { .sprite-hoverable-rtl(0, 3); }
 
 .k-i-seek-n { .sprite-hoverable(0, 4); }
 .k-i-seek-e { .sprite-hoverable(0, 5); }
+.k-i-seek-w { .sprite-hoverable-rtl(0, 5); }
 .k-i-seek-s { .sprite-hoverable(0, 6); }
 .k-i-seek-w { .sprite-hoverable(0, 7); }
+.k-i-seek-e { .sprite-hoverable-rtl(0, 7); }
 
 .k-si-arrow-n { .sprite-hoverable(0, -129px); }
 .k-si-arrow-e { .sprite-hoverable(0, 9); }
@@ -333,6 +406,9 @@ html body .k-button-bare
 
 .k-i-pencil, .k-edit { .sprite-hoverable(2, 0); }
 .k-i-close, .k-delete, .k-group-delete { .sprite-hoverable(2, 1); }
+.k-si-close { .sprite-hoverable(10, 5); }
+.k-multiselect .k-delete { .sprite-position(10, 5); }
+.k-multiselect .k-state-hover .k-delete { .sprite-position(11, 5); }
 .k-i-tick, .k-insert, .k-update { .sprite-hoverable(2, 2); }
 .k-i-cancel, .k-cancel, .k-denied { .sprite-hoverable(2, 3); }
 .k-i-plus, .k-add { .sprite-hoverable(2, 4); }
@@ -340,9 +416,12 @@ html body .k-button-bare
 .k-i-funnel-clear, .k-clear-filter { .sprite-hoverable(2, 6); }
 
 .k-i-refresh { .sprite-hoverable(2, 7); }
+.k-i-exception { .sprite-hoverable(10, 19); }
 .k-i-restore { .sprite-hoverable(2, 8); }
 .k-i-maximize { .sprite-hoverable(2, 9); }
 .k-i-minimize { .sprite-hoverable(4, 18); }
+.k-i-pin { .sprite-hoverable(10, 16); }
+.k-i-unpin { .sprite-hoverable(10, 17); }
 .k-resize-se { .sprite-hoverable(2, 10); }
 
 .k-i-calendar { .sprite-hoverable(2, 11); }
@@ -352,8 +431,8 @@ html body .k-button-bare
 
 .k-i-search { .sprite-hoverable(2, 15); }
 .k-i-custom { .sprite-hoverable(-115px, -113px, 26); }
-.k-editor .k-i-custom { background-position: -112px -110px; }
-.k-viewHtml { background-position: -112px -132px; }
+.k-editor .k-i-custom { background-position: -111px -109px; }
+.k-viewHtml { background-position: -288px -120px; }
 
 .k-i-insert-n, .k-insert-top { .sprite-hoverable(10, 2); }
 .k-i-insert-m, .k-insert-middle { .sprite-hoverable(10, 3); }
@@ -371,6 +450,11 @@ html body .k-button-bare
 .k-file { .sprite-hoverable(0, 0); }
 .k-i-folder-add, .k-addfolder { .sprite-hoverable(2, 17); }
 .k-i-folder-up, .k-goup { .sprite-hoverable(2, 18); }
+
+.k-file > .k-icon
+{
+    background-position:-115px -91px;
+}
 
 .k-image
 {
@@ -424,8 +508,8 @@ html .k-error-colored
 
 .k-loading-text
 {
-    top: -4000px;
-    left: -4000px;
+    text-indent: -4000px;
+    text-align: center; /*rtl*/
 }
 
 .k-loading-image,
@@ -608,6 +692,11 @@ div.k-window-content
     overflow: auto;
     outline: 0;
     .border-box;
+}
+
+.k-window-content > .km-scroll-container
+{
+    height:100%;
 }
 
 /* Compensate for content padding in IE7 */
@@ -812,9 +901,7 @@ div.k-window-content
     margin: 0;
     zoom: 1;
 
-    -moz-border-radius: 0;
-    -webkit-border-radius: 0;
-    border-radius: 0;
+    .border-radius(0);
 }
 
 .k-panelbar .k-image,
@@ -1035,6 +1122,12 @@ ul.k-menu-vertical > .k-item
     padding-left: 1px;
 }
 
+.k-ie .k-menu .k-animation-container,
+.k-ie .k-popup .k-animation-container
+{
+    margin-top: -2px;
+}
+
 .k-popup .k-animation-container .k-popup
 {
     margin-left: -1px;
@@ -1072,6 +1165,7 @@ ul.k-menu-vertical .k-separator,
 {
     width: 100%;
     border-collapse: separate;
+    border-spacing: 0;
     empty-cells: show;
     border-width: 0;
     outline: none;
@@ -1091,6 +1185,11 @@ ul.k-menu-vertical .k-separator,
     font-weight: normal;
     white-space: nowrap;
     text-overflow: ellipsis;
+}
+
+.k-ie10 .k-grid-header a:active
+{
+    background-color: transparent; /*remove gray background*/
 }
 
 .k-grid-header .k-header .k-link
@@ -1269,7 +1368,7 @@ div.k-grid-header .k-header
 
 .k-pager-wrap
 {
-    overflow: auto;
+    overflow: hidden;
     border-style: solid;
     border-width: 1px;
     line-height: 24px;
@@ -1330,7 +1429,7 @@ div.k-grid-header .k-header
     padding: 0 3px;
     height: 22px;/*IE7*/
     line-height: 22px;/*IE7*/
-    border-radius:13px;
+    .border-radius(13px);
     cursor:pointer;
 }
 
@@ -1349,7 +1448,7 @@ div.k-grid-header .k-header
 .k-pager-numbers .k-link
 {
     padding: 0 8px;
-    border-radius:13px;
+    .border-radius(13px);
 }
 
 .k-pager-numbers .k-link:hover
@@ -1371,7 +1470,7 @@ div.k-grid-header .k-header
     float:right;
     margin-right:6px;
     border-width:0;
-    border-radius:0;
+    .border-radius(0);
 }
 
 .k-pager-numbers .k-state-selected
@@ -1380,7 +1479,7 @@ div.k-grid-header .k-header
     border-width:1px;
     line-height:22px;
     padding:0 7px;
-    border-radius:13px;
+    .border-radius(13px);
 }
 
 .k-pager-wrap .k-textbox
@@ -1424,8 +1523,8 @@ div.k-grid-header .k-header
 
 /* Grid :: filtering */
 
-.k-grid-filter,
-.k-header-column-menu
+.k-header > .k-grid-filter,
+.k-header > .k-header-column-menu
 {
     float: right;
     margin: -.5em -.6em -.4em;
@@ -1444,8 +1543,8 @@ div.k-grid-header .k-header
     padding: .5em;
 }
 
-.k-filter-menu .k-widget,
-.k-filter-menu .k-textbox
+form.k-filter-menu .k-widget,
+form.k-filter-menu .k-textbox
 {
     display: block;
 }
@@ -1453,19 +1552,19 @@ div.k-grid-header .k-header
 .k-filter-help-text,
 .k-filter-menu .k-widget
 {
-    margin: .3em 0 0;
+    margin: .19em 0 0;
 }
 
-.k-filter-menu .k-filter-and
+.k-filter-menu span.k-filter-and
 {
     width: 6em;
-    margin: .6em 0 0;
+    margin: .5em 0 .5em;
 }
 
 .k-filter-menu .k-button
 {
     width:48%;
-    margin: .6em 4% 0 0;
+    margin: .5em 4% 0 0;
 }
 
 .k-filter-menu .k-button+.k-button
@@ -1477,7 +1576,7 @@ div.k-grid-header .k-header
 
 .k-grouping-row .k-icon
 {
-    margin: 0 4px 0 0;
+    margin: -3px 4px 0 2px;
 }
 
 .k-grouping-row p
@@ -1488,7 +1587,18 @@ div.k-grid-header .k-header
     padding: 0 .6em;
 }
 
-.k-grid .k-group-cell+td,
+.k-grouping-row td,
+.k-grouping-row+tr td
+{
+    border-top-width: 1px;
+}
+
+.k-grouping-row .k-group-cell,
+.k-grouping-row+tr .k-group-cell
+{
+    border-top-width: 0;
+}
+
 .k-grid .k-hierarchy-cell+td
 {
     border-left-width: 0;
@@ -1497,7 +1607,7 @@ div.k-grid-header .k-header
 .k-grid .k-group-col,
 .k-grid .k-hierarchy-col
 {
-    width: 30px;
+    width: 27px;
 }
 
 .k-grouping-header
@@ -1566,6 +1676,23 @@ div.k-grid-header .k-header
 
 /* Grid :: editing */
 
+.k-dirty-cell:before
+{
+    content:"\a0";
+    display: inline-block;
+    width: 0;
+}
+
+.k-ie7 .k-dirty-cell
+{
+    position: relative;
+}
+
+.k-ie7 .k-dirty
+{
+    top: 5px;
+}
+
 .k-dirty
 {
     position: absolute;
@@ -1584,7 +1711,7 @@ div.k-grid-header .k-header
 .k-grid-toolbar
 {
     margin: 0;
-    padding: .2em .6em;
+    padding: .22em .2em .28em;
     cursor: default;
 }
 
@@ -1599,6 +1726,11 @@ div.k-grid-header .k-header
     padding: 0;
 }
 
+.k-window > div.k-popup-edit-form
+{
+    padding: 1em 0;
+}
+
 .k-grid-edit-row .k-edit-form td
 {
     border-bottom-width: 0;
@@ -1611,26 +1743,49 @@ div.k-grid-header .k-header
 }
 
 .k-edit-label,
-.k-edit-field,
-.k-edit-form-container .editor-label,
-.k-edit-form-container .editor-field
-{
-    display: inline-block;
-    padding-bottom: 1em;
-}
-
-.k-edit-label,
 .k-edit-form-container .editor-label
 {
+    float: left;
+    clear: both;
     width: 30%;
+    padding: .4em 0 1em;
+    margin-left: 2%;
     text-align: right;
-    padding-right: 3%;
 }
 
 .k-edit-field,
 .k-edit-form-container .editor-field
 {
+    float: right;
+    clear: right;
     width: 60%;
+    margin-right: 2%;
+    padding: 0 0 .6em;
+}
+
+.k-edit-field > input[type="checkbox"],
+.k-edit-field > input[type="radio"]
+{
+    margin-top: .4em;
+}
+
+.k-edit-field > input[type="checkbox"]:first-child,
+.k-edit-field > input[type="radio"]:first-child,
+.k-edit-field > label:first-child > input[type="checkbox"],
+.k-edit-field > .k-button:first-child
+{
+    margin-left: 0;
+}
+
+.k-edit-form-container .k-edit-buttons
+{
+    clear: both;
+    text-align: right;
+    border-width: 1px 0 0;
+    border-style: solid;
+    position: relative;
+    bottom: -1em;
+    padding: .6em;
 }
 
 .k-grid .field-validation-error
@@ -1660,7 +1815,7 @@ div.k-grid-header .k-header
 .k-grid .k-button,
 .k-edit-form-container .k-button
 {
-    margin: 0 .2em;
+    margin: 0 .16em;
 }
 
 @grid-button-min-width: 64px;
@@ -1716,6 +1871,7 @@ html body .k-grid tbody .k-button-icon
     .border-box;
 }
 
+.k-ie7 .k-edit-cell>.text-box,
 .k-ie7 .k-edit-cell>.k-textbox,
 .k-ie7 .k-edit-cell>.k-widget,
 .k-ie7 .k-grid-edit-row>td>.k-textbox,
@@ -1725,11 +1881,6 @@ html body .k-grid tbody .k-button-icon
     width: 90%;
 }
 
-
-.k-ie7 .k-edit-cell .k-textbox,
-.k-ie7 .k-grid-edit-row .k-textbox
-{
-}
 
 html .k-edit-cell .k-tooltip,
 html .k-grid-edit-row .k-tooltip
@@ -1763,13 +1914,33 @@ html .k-grid-edit-row .k-tooltip
     position: absolute;
     height: 25px;
     cursor: col-resize;
+    z-index: 2;
 }
 
 .k-marquee
 {
     position: absolute;
-    filter: alpha(opacity=30);
-    opacity: .3;
+}
+
+.k-marquee-color,
+.k-marquee-text
+{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.k-marquee-color
+{
+    filter: alpha(opacity=60);
+    opacity: .6;
+}
+
+.k-column-menu
+{
+    min-width:150px;
 }
 
 .k-column-menu .k-sprite
@@ -1791,13 +1962,14 @@ html .k-grid-edit-row .k-tooltip
 /* ComboBox & DropDownList */
 
 span.k-datepicker,
+span.k-timepicker,
+span.k-datetimepicker,
+span.k-colorpicker,
 span.k-numerictextbox,
 span.k-combobox,
-span.k-dropdown,
-span.k-timepicker,
-span.k-datetimepicker
+span.k-dropdown
 {
-    background: none;
+    background-image: none;
 }
 
 .k-autocomplete,
@@ -1805,6 +1977,7 @@ span.k-datetimepicker
 .k-datepicker,
 .k-timepicker,
 .k-datetimepicker,
+.k-colorpicker,
 .k-numerictextbox,
 .k-dropdown,
 .k-selectbox,
@@ -1818,16 +1991,33 @@ span.k-datetimepicker
     vertical-align: middle;
 }
 
+.k-filter-menu .k-combobox,
+.k-filter-menu .k-datepicker,
+.k-filter-menu .k-timepicker,
+.k-filter-menu .k-datetimepicker,
+.k-filter-menu .k-numerictextbox,
+.k-filter-menu .k-dropdown,
+.k-filter-menu .k-textbox
+{
+    width: 13.2em;
+}
+
 .k-autocomplete,
 .k-combobox,
 .k-datepicker,
 .k-timepicker,
 .k-datetimepicker,
+.k-colorpicker,
 .k-numerictextbox,
 .k-dropdown,
 .k-selectbox
 {
     white-space: nowrap;
+}
+
+.k-colorpicker
+{
+    width: auto;
 }
 
 .k-datetimepicker
@@ -1873,6 +2063,7 @@ span.k-datetimepicker
 .k-slider,
 .k-splitbar,
 .k-calendar,
+.k-treeview,
 .k-pager-wrap,
 .k-grid-header .k-link,
 .k-header-column-menu {
@@ -1889,30 +2080,14 @@ span.k-datetimepicker
     border-style: solid;
 }
 
-.k-list-container.k-state-border-up,
-.k-autocomplete.k-state-border-up,
-.k-dropdown-wrap.k-state-border-up,
-.k-picker-wrap.k-state-border-up,
-.k-numeric-wrap.k-state-border-up
-{
-    border-top: 0;
-    padding-top: 3px;
-}
-
-.k-dropdown-wrap.k-state-border-up .k-select,
-.k-picker-wrap.k-state-border-up .k-select
-{
-    top: 1px;
-}
-
 .k-list-container.k-state-border-down,
 .k-autocomplete.k-state-border-down,
 .k-dropdown-wrap.k-state-border-down,
 .k-picker-wrap.k-state-border-down,
 .k-numeric-wrap.k-state-border-down
 {
-    border-bottom: 0;
-    padding-bottom: 3px;
+    border-bottom-width: 0;
+    padding-bottom: 1px;
 }
 
 .k-textbox,
@@ -1923,28 +2098,28 @@ span.k-datetimepicker
 {
     border-width: 1px;
     border-style: solid;
-    padding: 2px 22px 2px 2px;
+    padding: 0 1.9em 0 0;
 }
 
 .k-numeric-wrap.k-expand-padding
 {
-    padding-right : 2px;
+    padding-right: 0;
 }
 
 .k-textbox,
 .k-autocomplete
 {
-    padding: 2px;
+    padding: 0;
 }
 
 .k-textbox.k-space-left
 {
-    padding-left: 22px;
+    padding-left: 1.9em;
 }
 
 .k-textbox.k-space-right
 {
-    padding-right: 22px;
+    padding-right: 1.9em;
 }
 
 .k-textbox .k-icon
@@ -2020,14 +2195,8 @@ span.k-datetimepicker
 .k-numeric-wrap .k-select
 {
     border-style: solid;
-    border-width: 0;
+    border-width: 0 0 0 1px;
     border-color: inherit; /* skin-related, inherit does not work in ie7- */
-}
-
-.k-picker-wrap .k-select,
-.k-numeric-wrap .k-select
-{
-    padding: 0 2px;
 }
 
 span.k-datetimepicker .k-select,
@@ -2050,7 +2219,7 @@ span.k-datetimepicker .k-select+.k-select
 
 .k-combobox .k-icon
 {
-    margin-top: 1px;
+    /*margin-top: 1px;*/
 }
 
 .k-dropdown .k-select,
@@ -2078,9 +2247,9 @@ span.k-datetimepicker .k-select+.k-select
 .k-dropdown-wrap .k-input,
 .k-selectbox .k-input
 {
-    height: 1.31em;
-    line-height: 1.31em;
-    padding: 0.18em 0;
+    height: 1.65em;
+    line-height: 1.65em;
+    padding: 0.177em 0;
     text-indent: 4px;
     border: 0;
     margin: 0;
@@ -2099,17 +2268,37 @@ span.k-datetimepicker .k-select+.k-select
 .k-numeric-wrap .k-select,
 .k-dropdown-wrap .k-select
 {
-    min-height: 1.3em;
-    line-height: 1.3em;
+    min-height: 1.65em;
+    line-height: 2em;
     vertical-align: middle;
-    padding: 3px;
+    -moz-box-sizing: border-box;
+    text-align: center;
+    width: 1.9em;
+    height: 100%;
+}
+
+.k-numeric-wrap .k-select
+{
+    padding: 0;
 }
 
 body .k-datetimepicker .k-select
 {
-    -moz-border-radius: 0;
-    -webkit-border-radius: 0;
-    border-radius: 0;
+    .border-radius(0);
+}
+
+.k-picker-wrap .k-icon
+{
+    margin-top: 1px;
+}
+
+.k-ie7 .k-picker-wrap .k-icon,
+.k-ie7 .k-dropdown-wrap .k-icon
+{
+    line-height: 2em;
+    font-size: 1em;
+    padding-top: 16px;
+    height: 0;
 }
 
 .k-combobox .k-icon,
@@ -2144,6 +2333,7 @@ body .k-datetimepicker .k-select
 {
     padding: 1px 5px 1px 5px;
     line-height: 1.8em;
+    min-height: 1.8em;
 }
 
 .k-popup .k-list .k-state-hover,
@@ -2153,6 +2343,52 @@ body .k-datetimepicker .k-select
     padding: 0 4px;
     border-width: 1px;
     border-style: solid;
+}
+
+/* MultiSelect */
+
+.k-multiselect-wrap
+{
+    position: relative;
+    border-width: 0px;
+    border-style: solid;
+    border-radius: 4px;
+    border-color: #C5C5C5;
+    background-color: #FFF;
+    min-height: 2.04em;
+}
+
+.k-multiselect-wrap .k-input
+{
+    background-color: transparent;
+    height: 1.31em;
+    line-height: 1.31em;
+    padding: 0.18em 0;
+    text-indent: 4px;
+    border: 0;
+    margin: 1px 0 0;
+    float: left;
+}
+
+.k-multiselect-wrap li
+{
+    margin: 1px 0 1px 1px;
+    padding: .1em .15em .1em .4em;
+    line-height: 1.5em;
+    float: left;
+}
+
+.k-autocomplete .k-loading,
+.k-multiselect .k-loading
+{
+    position: absolute;
+    right: 3px;
+    bottom: 4px;
+}
+
+.k-multiselect .k-loading-hidden
+{
+    visibility: hidden;
 }
 
 /* Calendar */
@@ -2198,7 +2434,7 @@ body .k-datetimepicker .k-select
     float:left;
     border-spacing: 0;
     width: 100%;
-    height: 166px;
+    height: 170px;
     border-width: 0;
     margin: 0;
     table-layout: fixed;
@@ -2276,21 +2512,20 @@ body .k-datetimepicker .k-select
 
 /* Date/Time Pickers */
 
-span.k-timepicker,
-span.k-datetimepicker,
-span.k-datepicker
-{
-    background-color: transparent; /* due to k-widget */
-}
-
 .k-datetimepicker .k-picker-wrap
 {
-    padding-right: 42px;
+    padding-right: 3.8em;
+}
+
+.k-datetimepicker .k-select
+{
+    width: 3.8em;
 }
 
 .k-datetimepicker .k-picker-wrap .k-icon
 {
-    margin-left: 3px;
+    margin: 0 .24em;
+    font-size: 1em;
 }
 
 .k-picker-wrap .k-icon
@@ -2356,6 +2591,11 @@ div.k-treeview
 {
     display: inline-block;
     vertical-align: top;
+}
+
+.k-treeview .k-request-retry
+{
+    vertical-align: baseline;
 }
 
 .k-treeview .k-plus,
@@ -2432,18 +2672,26 @@ div.k-treeview
 {
     outline: 0;
     .border-box;
-    text-indent: 2px\9;
-    width: 12.4em;
 }
 
 input.k-textbox
 {
     padding: 2px .3em;
-    height: 2.12em;
+    height: 2.13em;
     line-height: 1.6em;
 }
 
-.k-ie7 input.k-textbox { display: block; line-height: 1.72em; height: 1.72em; text-indent: .3em; }
+.k-ie input.k-textbox
+{
+    text-indent: 2px;
+}
+
+.k-ff input.k-textbox
+{
+    height: 2.17em;
+}
+
+.k-ie7 input.k-textbox { line-height: 1.72em; height: 1.72em; text-indent: .3em; }
 
 textarea.k-textbox
 {
@@ -2460,7 +2708,7 @@ textarea.k-textbox
 
 span.k-numerictextbox
 {
-    background: transparent;
+    background-color: transparent;
 }
 
 .k-numerictextbox .k-input /* alignment of arrows in WebKit */
@@ -2468,17 +2716,12 @@ span.k-numerictextbox
     margin: 0;
 }
 
-.k-numerictextbox .k-select
-{
-    padding-top: 1px;
-    padding-bottom: 1px;
-}
-
 .k-numerictextbox .k-link
 {
     display: block;
-    height: 11px;
-    line-height: 11px;
+    height: 1em;
+    line-height: 1em;
+    vertical-align: middle;
     border-width: 0;
     padding: 0;
 }
@@ -2486,75 +2729,290 @@ span.k-numerictextbox
 .k-numerictextbox .k-icon
 {
     height: 11px;
-    vertical-align: top;
+}
+
+.k-numeric-wrap .k-input::-webkit-inner-spin-button
+{
+    -webkit-appearance: none;
 }
 
 /* ColorPicker */
 
 .k-colorpicker
 {
-    display: inline-block;
-    vertical-align: middle;
+    .k-picker-wrap {
+        line-height: 2em;
+    }
+
+    .k-selected-color {
+        vertical-align: top;
+        line-height: 0;
+        display: inline-block;
+        height: 2em;
+        width: 2em;
+    }
+    .k-tool-icon {
+        position: relative;
+        top: -2px;
+        display: inline-block;
+        padding: 3px 3px 2px;
+        font-size: 0;
+        line-height: 0;
+        margin-right: 3px;
+        margin-left: 2px;
+        margin-bottom: 3px;
+        background-repeat: no-repeat;
+        vertical-align: middle;
+        width: @grid-size;
+        height: @grid-size;
+        .k-selected-color {
+            display: block;
+            height: 3px;
+            width: @grid-size;
+            position: absolute;
+            left: 3px;
+            bottom: -3px;
+            border-radius: 0 !important;
+        }
+    }
+    .k-icon {
+        cursor: pointer;
+    }
 }
 
-.k-colorpicker .k-tool-icon
-{
-    display: inline-block;
-    vertical-align: top;
-    padding: 2px 3px;
-    font-size: 0;
-    line-height: 0;
+.box-shadow(...) {
+    -webkit-box-shadow: @arguments;
+    box-shadow: @arguments;
 }
 
-.k-colorpicker .k-selected-color
-{
-    display: block;
-    height: 16px;
-    width: 16px;
-}
-
-.k-colorpicker .k-icon
-{
-    margin-top: 4px;
-    vertical-align: middle;
-    cursor: pointer;
-}
-
-.k-colorpicker-popup
-{
-    width: 136px;
-    line-height: 0;
-}
-
-.k-colorpicker-popup .k-reset
-{
-    display: inline-block;
-    margin: 0;
-    padding: .25em;
-}
-
-.k-colorpicker-popup .k-item
-{
-    display: block;
-    float: left;
-    width: 12px;
-    height: 12px;
-    overflow: hidden;
-    font-size: 0;
-    margin: 0 1px 1px 0;
-    padding: 0;
-}
-
-.k-colorpicker-popup .k-item div
-{
-    height: 100%;
-    margin: 1px;
+.k-disabled-overlay {
+    position: absolute;
+    left: 0;
+    top: 0;
     width: 100%;
+    height: 100%;
+    background-color: #fff;
+    opacity: 0.5;
+    filter: alpha(opacity=50);
+}
+
+.k-colorpalette
+{
+    position: relative;
+    width: 120px;
+    line-height: 0;
+    border-width: 0;
+
+    .k-palette {
+        display: inline-block;
+        vertical-align: top;
+    }
+
+    .k-item {
+        display: block;
+        float: left;
+        width: 12px;
+        height: 12px;
+        overflow: hidden;
+        font-size: 0;
+        padding: 1px;
+        z-index: 0;
+        position: relative;     // what do you know, the drop-shadow
+                                // is not properly visible without
+                                // this.  both chrome and FF exhibit
+                                // this bug, I suppose it's "essential
+                                // complexity"
+        &.k-state-selected {
+            z-index: 100;
+            background: transparent;
+            .box-shadow(0 1px 4px #000);
+            border: 1px solid #fff;
+            padding: 0;
+        }
+    }
+}
+
+.k-flatcolorpicker
+{
+    display: inline-block;
+    width: 250px;
+    padding-bottom: 5px;
+
+    div& {
+        background-color: transparent;
+        background-image: none;
+    }
+
+    .k-selected-color {
+        background-image: url("textures/transtexture.png");
+        background-position: 50% 50%;
+        text-align: right;
+
+        input.k-color-value {
+            font-family: Consolas,"Ubuntu Mono","Lucida Console","Courier New",monospace;
+            padding: .75em .3em .65em 1em;
+            border: 0;
+            margin: 0;
+            width: 70%;
+        }
+    }
+
+    .k-hsv-rectangle {
+        position: relative;
+        .prohibit-selection;
+        -ms-touch-action: pinch-zoom double-tap-zoom;
+        .k-draghandle {
+            cursor: pointer;
+            position: absolute;
+            z-index: 10;
+            left: 50%;
+            top: 50%;
+            width: 8px;
+            height: 8px;
+            border: 1px solid #eee;
+            margin-left: -5px;
+            margin-top: -5px;
+            .border-radius(6px);
+            .box-shadow(0, 1px, 2px, #444);
+            background: transparent;
+            &:hover, &:focus {
+                background: transparent;
+                border-color: #fff;
+                .box-shadow(0 1px 5px #000);
+            }
+        }
+        &.k-dragging, &.k-dragging * {
+            cursor: none;
+        }
+    }
+
+    .k-slider-horizontal {
+        height: 20px;
+        width: 90%;
+        margin: 0 5%;
+        .k-slider-track {
+            .box-shadow(~"0 1px 0 #fff, 0 -1px 0 #999");
+        }
+    }
+
+    .k-hue-slider, .k-transparency-slider {
+        display: block;
+        .k-slider-selection {
+            background: transparent;
+        }
+        .k-draghandle {
+            background: transparent;
+            border: 3px solid #eee;
+            margin-top: 1px;
+            height: 8px;
+            width: 8px;
+            .box-shadow(0 1px 4px #444);
+            &:hover, &:focus {
+                background: transparent;
+                border-color: #fff;
+                .box-shadow(0 1px 5px #000);
+				border-width: 2px;
+				padding: 1px;
+            }
+        }		
+    }
+
+    .k-hue-slider {
+        .k-slider-track {
+            background: -moz-linear-gradient(left,  #ff0000 0%, #ffff00 16%, #00ff00 33%, #00ffff 50%, #0000ff 67%, #ff00ff 84%, #ff0004 100%); /* FF3.6+ */
+            background: -webkit-gradient(linear, left top, right top, color-stop(0%,#ff0000), color-stop(16%,#ffff00), color-stop(33%,#00ff00), color-stop(50%,#00ffff), color-stop(67%,#0000ff), color-stop(84%,#ff00ff), color-stop(100%,#ff0004)); /* Chrome,Safari4+ */
+            background: -webkit-linear-gradient(left,  #ff0000 0%,#ffff00 16%,#00ff00 33%,#00ffff 50%,#0000ff 67%,#ff00ff 84%,#ff0004 100%); /* Chrome10+,Safari5.1+ */
+            background: -o-linear-gradient(left,  #ff0000 0%,#ffff00 16%,#00ff00 33%,#00ffff 50%,#0000ff 67%,#ff00ff 84%,#ff0004 100%); /* Opera 11.10+ */
+            background: -ms-linear-gradient(left,  #ff0000 0%,#ffff00 16%,#00ff00 33%,#00ffff 50%,#0000ff 67%,#ff00ff 84%,#ff0004 100%); /* IE10+ */
+            background: linear-gradient(left,  #ff0000 0%,#ffff00 16%,#00ff00 33%,#00ffff 50%,#0000ff 67%,#ff00ff 84%,#ff0004 100%); /* W3C */
+        }
+    }
+
+    .k-transparency-slider {
+        .k-slider-track {
+            background-image: url("textures/transparency.png");
+            background-size: 100% auto;
+            background-position: 100% 50%;
+            background-repeat: no-repeat;
+        }
+    }
+
+    .k-controls {
+        margin-top: 10px;
+        margin-bottom: 5px;
+        text-align: center;
+        font-size: 90%;
+        .k-button {
+            width: 6em;
+        }
+    }
+
+    .k-hsv-gradient {
+        background:
+        -moz-linear-gradient(top,  rgba(0,0,0,0) 0%, rgba(0,0,0,1) 100%), /* FF3.6+ */
+        -moz-linear-gradient(left,  rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%); /* FF3.6+ */
+
+        background:
+        -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(0,0,0,0)), color-stop(100%,rgba(0,0,0,1))), /* Chrome,Safari4+ */
+        -webkit-gradient(linear, left top, right top, color-stop(0%,rgba(255,255,255,1)), color-stop(100%,rgba(255,255,255,0))); /* Chrome,Safari4+ */
+
+        background:
+        -webkit-linear-gradient(top,  rgba(0,0,0,0) 0%,rgba(0,0,0,1) 100%), /* Chrome10+,Safari5.1+ */
+        -webkit-linear-gradient(left,  rgba(255,255,255,1) 0%,rgba(255,255,255,0) 100%); /* Chrome10+,Safari5.1+ */
+
+        background:
+        -o-linear-gradient(top,  rgba(0,0,0,0) 0%,rgba(0,0,0,1) 100%), /* Opera 11.10+ */
+        -o-linear-gradient(left,  rgba(255,255,255,1) 0%,rgba(255,255,255,0) 100%); /* Opera 11.10+ */
+
+        background:
+        -ms-linear-gradient(top,  rgba(0,0,0,0) 0%,rgba(0,0,0,1) 100%), /* IE10+ */
+        -ms-linear-gradient(left,  rgba(255,255,255,1) 0%,rgba(255,255,255,0) 100%); /* IE10+ */
+
+        background:
+        linear-gradient(top,  rgba(0,0,0,0) 0%,rgba(0,0,0,1) 100%), /* W3C */
+        linear-gradient(left,  rgba(255,255,255,1) 0%,rgba(255,255,255,0) 100%); /* W3C */
+
+        height: 180px;
+        margin-bottom: 5px;
+    }
+}
+
+.k-ie9 {
+    .k-flatcolorpicker {
+        .k-hue-slider {
+            .k-slider-track {
+                background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2ZmMDAwMCIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjE2JSIgc3RvcC1jb2xvcj0iI2ZmZmYwMCIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjMzJSIgc3RvcC1jb2xvcj0iIzAwZmYwMCIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjUwJSIgc3RvcC1jb2xvcj0iIzAwZmZmZiIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjY3JSIgc3RvcC1jb2xvcj0iIzAwMDBmZiIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9Ijg0JSIgc3RvcC1jb2xvcj0iI2ZmMDBmZiIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNmZjAwMDQiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
+            }
+        }
+        .k-hsv-gradient {
+            background:
+            url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzAwMDAwMCIgc3RvcC1vcGFjaXR5PSIwIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMwMDAwMDAiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+),
+            url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2ZmZmZmZiIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNmZmZmZmYiIHN0b3Atb3BhY2l0eT0iMCIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
+        }
+    }
+}
+
+.k-ie7, .k-ie8 {
+    .k-flatcolorpicker {
+        .k-hue-slider {
+            .k-slider-track {
+                background: url("textures/hue.png") repeat 0 50%;
+            }
+        }
+        .k-transparency-slider {
+            .k-slider-track {
+                background: url("textures/transparency.png") repeat 0 50%;
+            }
+        }
+        .k-hsv-gradient {
+            filter: ~"progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffffff',endColorstr='#00ffffff',GradientType=1) progid:DXImageTransform.Microsoft.gradient(startColorstr='#00000000',endColorstr='#ff000000',GradientType=0)";
+        }
+    }
 }
 
 /* Editor */
 
-.k-editor
+table.k-editor
 {
     width: 100%;
     height: 250px;
@@ -2564,6 +3022,19 @@ span.k-numerictextbox
     border-collapse: separate;
     font-size: 100%;
     vertical-align: top;
+}
+
+.k-editor-inline
+{
+    border-width: 2px;
+    padding: .3em .5em;
+}
+
+.k-editortoolbar-dragHandle
+{
+    cursor: move;
+    padding-left: 0;
+    padding-right: 3px;
 }
 
 .k-editor .k-editor-toolbar-wrap
@@ -2579,20 +3050,57 @@ span.k-numerictextbox
     list-style-type: none;
     line-height: 1.3em;
     cursor: default;
+    white-space: nowrap;
 }
 
 .k-editor-toolbar li
 {
-    display: inline; /* would have been inline-block, if not for IE */
+    display: inline; /* mandatory for IE7. Floats and the inline-block hack break it */
     vertical-align: middle;
 }
 
+.k-webkit .k-editor-toolbar,
+.k-ff .k-editor-toolbar,
+.k-ie9 .k-editor-toolbar
+{
+    padding: 0;
+}
+
+.k-webkit .k-editor-toolbar li,
+.k-ff .k-editor-toolbar li,
+.k-ie9 .k-editor-toolbar li
+{
+    display: inline-block;
+    padding: .1em 0;
+}
+
+
+.k-group-end,
 .k-editor-toolbar .k-editor-dropdown,
+.k-editor-toolbar .k-editor-template,
 .k-editor-toolbar .k-editor-combobox,
 .k-editor-toolbar .k-editor-selectbox,
 .k-editor-toolbar .k-editor-colorpicker
 {
-    margin-right: 2px;
+    margin-right: 6px;
+}
+
+.k-editor-toolbar .k-editor-selectbox
+{
+    position: relative;
+}
+
+.k-editor-selectbox .k-select-overlay
+{
+    -webkit-appearance: none;
+    opacity: 0;
+    z-index: 11000;
+    top: 0;
+    left: 0;
+    position: absolute;
+    height: 26px;
+    width: 100%;
+    margin: -4px 0 0;
 }
 
 .k-editor-toolbar .k-separator
@@ -2624,60 +3132,88 @@ span.k-numerictextbox
 
 .k-editor-button .k-tool-icon
 {
-    width: 22px;
-    height: 22px;
-    margin: 1px;
+    width: 24px;
+    height: 24px;
+    margin: 1px 0;
     vertical-align: middle;
 }
 
-.k-editor-colorpicker .k-tool-icon
-{
-    padding: 17px 3px 2px;
+.editor-icon(@x, @y) {
+    background-position: @x @y;
+
+    &.k-state-hover,
+    &.k-state-selected {
+        background-position: (@x - 24) @y;
+    }
 }
 
-.k-editor-colorpicker .k-icon
-{
-    border-style: solid;
-    border-width: 0 0 0 1px;
-    border-color: #ccc;
-}
-
-.k-editor-colorpicker .k-selected-color
-{
-    height: 3px;
-}
-
-.k-bold { background-position: -64px 0; }
-.k-italic { background-position: -64px -22px; }
-.k-underline { background-position: -64px -44px; }
-.k-strikethrough { background-position: -64px -66px; }
-.k-foreColor .k-tool-icon { background-position: -64px -88px; }
-.k-backColor .k-tool-icon { background-position: -64px -110px; }
-.k-justifyLeft { background-position: -64px -132px; }
-.k-justifyCenter { background-position: -64px -154px; }
-.k-justifyRight { background-position: -64px -176px; }
-.k-justifyFull { background-position: -64px -198px; }
-.k-insertUnorderedList { background-position: -64px -242px; }
-.k-insertOrderedList { background-position: -64px -264px; }
-.k-indent, .k-rtl .k-outdent { background-position: -112px 0; }
-.k-outdent, .k-rtl .k-indent { background-position: -112px -22px; }
-.k-createLink { background-position: -112px -44px; }
-.k-unlink { background-position: -112px -66px; }
-.k-insertImage { background-position: -112px -88px; }
-.k-subscript { background-position: -112px -154px; }
-.k-superscript { background-position: -112px -176px; }
+.k-i-move { background-position: -160px -288px; }
+.k-bold { .editor-icon(-240px, 0); }
+.k-italic { .editor-icon(-240px, -24px); }
+.k-underline { .editor-icon(-240px, -48px); }
+.k-strikethrough { .editor-icon(-240px, -72px); }
+.k-foreColor { .editor-icon(-240px, -96px); }
+.k-backColor { .editor-icon(-240px, -120px); }
+.k-justifyLeft { .editor-icon(-240px, -144px); }
+.k-justifyCenter { .editor-icon(-240px, -168px); }
+.k-justifyRight { .editor-icon(-240px, -192px); }
+.k-justifyFull { .editor-icon(-240px, -216px); }
+.k-insertUnorderedList { .editor-icon(-240px, -264px); }
+.k-insertOrderedList { .editor-icon(-240px, -288px); }
+.k-indent, .k-rtl .k-outdent { .editor-icon(-288px, 0); }
+.k-outdent, .k-rtl .k-indent { .editor-icon(-288px, -24px); }
+.k-createLink { .editor-icon(-288px, -48px); }
+.k-unlink { .editor-icon(-288px, -72px); }
+.k-insertImage { .editor-icon(-288px, -96px); }
+.k-subscript { .editor-icon(-288px, -144px); }
+.k-superscript { .editor-icon(-288px, -168px); }
+.k-createTable { .editor-icon(-192px, 0); }
+.k-addColumnLeft { .editor-icon(-192px, -24px); }
+.k-addColumnRight { .editor-icon(-192px, -48px); }
+.k-addRowAbove { .editor-icon(-192px, -72px); }
+.k-addRowBelow { .editor-icon(-192px, -96px); }
+.k-deleteRow { .editor-icon(-192px, -120px); }
+.k-deleteColumn { .editor-icon(-192px, -144px); }
+.k-mergeCells { .editor-icon(-192px, -168px); }
 
 /* default tool widths */
 .k-fontName { width: 110px; }
 .k-fontSize { width: 124px; }
 .k-formatBlock { width: 147px; }
 
+.k-editortoolbar-dragHandle
+{
+    float:left;
+    margin: 1px 0 0;
+}
+
+.k-editor-toolbar .k-editor-button
+{
+    padding: 1px;
+}
+
+.k-editor-button .k-tool-icon
+{
+    border-style: solid;
+    border-width: 1px 0 1px 1px;
+}
+
+.k-group-end .k-tool-icon
+{
+    border-right-width: 1px;
+}
+
+.k-editor-toolbar li.k-group-break
+{
+    display: block;
+    height: 0;
+    font-size: 0;
+    line-height: 0;
+}
+
 .k-editor-button .k-state-hover,
 .k-editor-button .k-state-active
 {
-    border-style: solid;
-    border-width: 1px;
-    margin: 0;
     vertical-align: middle;
 }
 
@@ -2729,13 +3265,52 @@ span.k-numerictextbox
 .k-editor-dialog
 {
     padding: 1em;
+    width: 400px;
+
+    .k-edit-label
+    {
+        width: 25%;
+    }
+
+    .k-edit-field
+    {
+        width: 66%;
+
+        .k-textbox
+        {
+            width: 96%;
+        }
+
+        .k-checkbox
+        {
+            margin: 0 .4em 0 0;
+        }
+    }
 }
 
-.k-editor-dialog ol
+.k-imagebrowser-dialog
 {
-    margin: 0;
-    padding: 1em 0 0;
-    list-style: none;
+    width: 740px;
+
+    .k-imagebrowser
+    {
+        margin: 0 1em 0;
+    }
+
+    .k-edit-label
+    {
+        width: 13%;
+    }
+
+    .k-edit-field
+    {
+        width: 81%;
+
+        .k-textbox
+        {
+            width: 50%;
+        }
+    }
 }
 
 .k-form-text-row,
@@ -2790,17 +3365,6 @@ span.k-numerictextbox
     display: inline-block;
 }
 
-.k-editor-dialog .k-button-wrapper
-{
-    padding: 1em;
-    text-align: right;
-}
-
-.k-editor-dialog .k-button-wrapper button
-{
-    vertical-align: baseline;
-}
-
 .k-editor-dialog .k-editor-textarea
 {
     width: 600px;
@@ -2813,6 +3377,28 @@ span.k-numerictextbox
 
 .k-button-wrapper .k-link:hover {
     text-decoration: underline;
+}
+
+@editor-createTable-cellSize: 18px;
+
+.k-ct-popup {
+    width: 8 * (@editor-createTable-cellSize + 4);
+    padding: .65em .5em .5em;
+}
+
+.k-ct-popup .k-status {
+    margin: .3em 0;
+}
+
+.k-ct-cell {
+    border-width: 1px;
+    border-style: solid;
+    width: @editor-createTable-cellSize;
+    height: @editor-createTable-cellSize;
+    margin: 1px;
+    vertical-align: top;
+    display: inline-block;
+    overflow: hidden;
 }
 
 /* Slider */
@@ -2860,7 +3446,7 @@ div.k-slider
 
 .k-slider .k-button .k-icon
 {
-    margin-top: 4px;
+    margin-top: 3px;
     vertical-align: top;
 }
 
@@ -2902,8 +3488,7 @@ div.k-slider
 .k-ie7 .k-slider .k-icon { margin-top: 2px; }
 
 .k-slider-track,
-.k-slider-selection
-{
+.k-slider-selection{
     position: absolute;
     margin: 0;
     padding: 0;
@@ -3125,7 +3710,788 @@ div.k-slider
 
 .k-slider-tooltip
 {
-	top:-4444px; /*prevent window resize in IE8 when appending*/
+    top:-4444px; /*prevent window resize in IE8 when appending*/
+}
+
+/* Scheduler */
+
+.k-scheduler-toolbar,
+.k-scheduler-footer
+{
+    border-style:solid;
+}
+
+.k-scheduler-toolbar,
+.k-scheduler-footer
+{
+    line-height:28px;
+    padding:6px;
+}
+
+.k-scheduler-toolbar
+{
+    border-width:0 0 1px;
+}
+
+.k-scheduler-header
+{
+    text-align:center;
+}
+
+.k-scheduler-footer
+{
+    border-width:1px 0 0;
+}
+
+.k-scheduler-toolbar > ul
+{
+    float:right;
+}
+
+.k-scheduler-toolbar > ul:first-child
+{
+    float:left;
+}
+
+.k-scheduler-toolbar > ul > li,
+.k-scheduler-footer > ul > li
+{
+    display:inline-block;
+    border-style:solid;
+    border-width:1px 1px 1px 0;
+}
+
+.k-scheduler .k-scheduler-toolbar .k-nav-current
+{
+    border-width:0;
+}
+
+.k-scheduler-toolbar > ul > li:first-child
+{
+    border-left-width:1px;
+}
+
+.k-scheduler div.k-scheduler-footer ul li
+{
+    margin-right:.6em;
+    border-width:1px;
+}
+
+.k-scheduler-toolbar .k-link,
+.k-scheduler-footer .k-link
+{
+    display:inline-block;
+    padding:0 1.1em;
+}
+
+.k-scheduler-toolbar .k-nav-prev .k-link,
+.k-scheduler-toolbar .k-nav-next .k-link
+{
+    padding-left:.6em;
+    padding-right:.6em;
+}
+
+.k-ie7 .k-scheduler-toolbar .k-nav-prev .k-link,
+.k-ie7 .k-scheduler-toolbar .k-nav-next .k-link
+{
+    height: 2.3em;
+    margin-top: -1px;
+    vertical-align: middle;
+}
+
+.k-ie7 .k-scheduler-toolbar .k-nav-prev .k-link .k-icon,
+.k-ie7 .k-scheduler-toolbar .k-nav-next .k-link .k-icon
+{
+    margin-top: .5em;
+}
+
+.k-scheduler-toolbar .k-nav-current .k-link
+{
+    padding:0;
+}
+
+.k-scheduler-toolbar .k-nav-current
+{
+    margin:0 1.1em;
+}
+
+.k-scheduler div.k-scheduler-toolbar > ul > li.k-nav-current,
+.k-scheduler .k-nav-current > .k-state-active
+{
+    background: none;
+}
+
+.k-scheduler-toolbar .k-i-calendar,
+.k-scheduler-footer .k-icon
+{
+    margin:-2px 6px 0 0;
+}
+
+.k-scheduler-header,
+.k-scheduler-header-wrap
+{
+    overflow:hidden;
+}
+
+.k-scheduler-header-wrap
+{
+    position:relative;
+    border-style: solid;
+    border-width: 0;
+}
+
+.k-scheduler .k-scrollbar-v .k-scheduler-header-wrap
+{
+    border-right-width: 1px;
+}
+
+.k-scheduler-times,
+.k-scheduler-content
+{
+    position:relative;
+}
+
+.k-scheduler-times
+{
+    overflow:hidden;
+    white-space: nowrap;
+    border-style:solid;
+    border-width:0;
+}
+
+.k-scheduler-content
+{
+    overflow:auto;
+}
+
+.k-scheduler-layout,
+.k-scheduler-table
+{
+    border-spacing:0;
+    width:100%;
+}
+
+.k-ie7 .k-scheduler-content .k-scheduler-table
+{
+    width: auto;
+}
+
+.k-scheduler-layout > tbody > tr > td
+{
+    padding: 0;
+    vertical-align: top;
+}
+
+/* fix smashed second layout column in iPad */
+.k-safari .k-scheduler-layout > tbody > tr > td + td
+{
+    width: 100%;
+}
+
+.k-scheduler-table
+{
+    table-layout:fixed;
+    margin:0;
+}
+
+.k-scheduler-times .k-scheduler-table
+{
+    table-layout:auto;
+}
+
+.k-scheduler-monthview .k-scheduler-content .k-scheduler-table
+{
+    height: 100%;
+}
+
+.k-scheduler-table td,
+.k-scheduler-table th
+{
+    height:1.5em;
+    padding:.334em .5em;
+}
+
+.k-scheduler-monthview .k-hidden,
+.k-scheduler-monthview .k-hidden > div
+{
+    width: 0 !important;
+    overflow: hidden !important;
+}
+
+.k-scheduler-monthview .k-hidden
+{
+    height: 60px;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    border-right-width: 0 !important;
+}
+
+.k-scheduler-monthview > tbody > tr:first-child .k-scheduler-times
+{
+    margin-right: 1px;
+}
+
+.k-scheduler-monthview > tbody > tr:first-child .k-scheduler-times .k-hidden
+{
+    height: auto;
+}
+
+.k-scheduler-monthview .k-scheduler-table td
+{
+    height: 60px;
+    text-align:right;
+}
+
+.k-scheduler-table td,
+.k-scheduler-layout tr + tr .k-scheduler-times th:last-child,
+.k-slot-cell
+{
+    vertical-align: top;
+}
+
+.k-scheduler-header th
+{
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.k-scheduler-table td,
+.k-scheduler-header th
+{
+    border-style: solid;
+    border-width: 0 0 1px 1px;
+}
+
+.k-scheduler-table td:first-child,
+.k-scheduler-header th:first-child
+{
+    border-left-width: 0;
+}
+
+.k-scheduler-agenda .k-scheduler-table td:first-child
+{
+    border-left-width: 1px;
+}
+
+.k-scheduler-agenda .k-scheduler-table td.k-first
+{
+    border-left-width: 0;
+}
+
+.k-scheduler-layout tr + tr .k-scheduler-times tr:last-child > th,
+.k-scheduler-layout tr + tr .k-scheduler-table > tbody > tr:last-child > td,
+.k-scheduler-table > tbody > tr > .k-last
+{
+    border-bottom-width: 0;
+}
+
+.k-scrollbar-h tr + tr .k-scheduler-times,
+.k-scrollbar-h .k-scheduler-content .k-scheduler-table > tbody > tr:last-child > td,
+.k-scheduler-agenda.k-scrollbar-h .k-scheduler-table > tbody > tr > td.k-last
+{
+    border-bottom-width: 1px;
+}
+
+.k-scheduler-times th
+{
+    text-align:right;
+    padding-right:.6em;
+    border-style:solid;
+    border-width:0 1px 1px 0;
+    border-color:transparent;
+}
+
+.k-scheduler-layout tr + tr .k-scheduler-times th
+{
+    border-bottom-color: transparent;
+}
+
+.k-scheduler-layout tr + tr .k-scheduler-times th.k-slot-cell,
+.k-scheduler-layout tr + tr .k-scheduler-times th.k-scheduler-times-all-day
+{
+    border-bottom-color: inherit;
+}
+
+.k-scheduler .k-middle-row td
+{
+    border-bottom-style:dotted;
+}
+
+.k-scheduler-now-arrow,
+.k-scheduler-now-line
+{
+    position:absolute;
+}
+
+.k-scheduler-now-arrow
+{
+    width:0;
+    height:0;
+    border:solid 5px transparent;
+    left:0;
+}
+
+.k-scheduler-now-line
+{
+    left:5px;
+    right:0;
+    height:1px;
+}
+
+.k-task
+{
+    position:relative;
+}
+
+div.k-more-events
+{
+    text-align:center;
+    font-size:1.6em;
+    line-height:1.2;
+    padding:0;
+}
+
+.k-more-events > span
+{
+    display:block;
+    margin-top:-.6em;
+}
+
+.k-event,
+.k-more-events
+{
+    position:absolute;
+    border-style:solid;
+    border-width:1px;
+    text-align:left;
+    overflow: hidden;
+}
+
+.k-event
+{
+    cursor: default;
+}
+
+.k-event-drag-hint
+{
+    filter: alpha(opacity=60);
+    opacity: .6;
+    cursor: -webkit-grabbing;
+    cursor: -moz-grabbing;
+}
+
+.k-scheduler-header .k-event
+{
+    white-space: nowrap;
+}
+
+.k-event dl,
+.k-event dt,
+.k-event dd
+{
+    margin:0;
+    padding:0;
+}
+
+.k-event dl
+{
+    padding:.34em 1.8em .34em .6em;
+}
+
+.k-event dt
+{
+    font-size:.9em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.k-event-actions,
+.k-event > .k-link,
+.k-task > .k-link
+{
+    position: absolute;
+    top: 3px;
+    right:4px;
+    white-space: nowrap;
+}
+
+.k-event-actions
+{
+    z-index: 1;
+}
+
+.k-scheduler-agenda .k-task > .k-link
+{
+    top: 0;
+    right: 0;
+}
+
+.k-event-actions:first-child
+{
+    position: static;
+    float: left;
+    margin: 4px 2px 0 4px;
+}
+
+.k-webkit .k-event-actions:first-child
+{
+    margin-top: 3px;
+}
+
+.k-event-actions:first-child > .k-link
+{
+    display: inline-block;
+}
+
+.k-event-delete
+{
+    display: none;
+}
+
+.k-event:hover .k-event-delete,
+tr:hover > td > .k-task .k-event-delete
+{
+    display: inline-block;
+}
+
+.k-event .k-event-top-actions,
+.k-event .k-event-bottom-actions
+{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    text-align: center;
+}
+
+.k-event .k-event-bottom-actions
+{
+    top: auto;
+    bottom: 0;
+}
+
+.k-event .k-resize-handle
+{
+    position: absolute;
+    visibility: hidden;
+    z-index: 2;
+}
+
+.k-event:hover .k-resize-handle
+{
+    visibility: visible;
+}
+
+.k-event .k-resize-handle:after
+{
+    content: "";
+    position: absolute;
+    filter: alpha(opacity=50);
+    opacity: .5;
+}
+
+.k-event > .k-resize-n
+{
+    top: 0;
+    left: 0;
+    right: 0;
+    height: .4em;
+}
+
+.k-event > .k-resize-s
+{
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: .4em;
+}
+
+.k-event > .k-resize-e
+{
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: .4em;
+}
+
+.k-event > .k-resize-w
+{
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: .4em;
+}
+
+.k-event > .k-resize-n:after,
+.k-event > .k-resize-s:after
+{
+    top: 1px;
+    left: 50%;
+    margin-left: -1em;
+    width: 2em;
+    height: 1px;
+}
+
+.k-event > .k-resize-s:after
+{
+    top: auto;
+    bottom: 1px;
+}
+
+.k-event > .k-resize-e:after,
+.k-event > .k-resize-w:after
+{
+    left: 1px;
+    top: 50%;
+    margin-top: -.7em;
+    height: 1.4em;
+    width: 1px;
+}
+
+.k-event > .k-resize-e:after
+{
+    left: auto;
+    right: 1px;
+}
+
+.k-scheduler-marquee
+{
+    border-style: solid;
+    border-width: 0;
+}
+
+.k-scheduler-marquee.k-first:before,
+.k-scheduler-marquee.k-last:after
+{
+    content: "";
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 3px;
+}
+
+div.k-scheduler-marquee:before
+{
+    top: 0;
+    left: 0;
+    border-right-color: transparent;
+    border-bottom-color: transparent;
+}
+
+div.k-scheduler-marquee:after
+{
+    bottom: 0;
+    right: 0;    
+    border-top-color: transparent;
+    border-left-color: transparent;
+}
+
+.k-scheduler-marquee .k-label-top
+{
+    position: absolute;
+    top: .3em;
+    left: .8em;
+    font-size: .8em;
+}
+
+.k-scheduler-marquee .k-label-bottom
+{
+    position: absolute;
+    bottom: .3em;
+    right: .81em;
+    font-size: .8em;
+}
+
+.k-scheduler-quickedit .k-textbox
+{
+    width: 200px;
+}
+
+.k-tooltip-bottom
+{
+    text-align: left;
+}
+
+.k-tooltip-bottom .k-button
+{
+    float: left;
+    margin-right: .3em;
+}
+
+.k-tooltip-bottom .k-quickedit-details
+{
+    float: right;
+    margin-right:0;
+}
+
+.k-scheduler-agenda .k-scheduler-table th,
+.k-scheduler-agenda .k-scheduler-table td
+{
+    text-align:left;
+}
+
+.k-slot-cell,
+.k-scheduler-groupcolumn
+{
+    width: 70px;
+}
+
+.k-scheduler-datecolumn
+{
+    width: 144px;
+}
+
+.k-scheduler-timecolumn
+{
+    width: 130px;
+}
+
+.k-scheduler-timecolumn > div
+{
+    position:relative;
+    vertical-align: top;
+}
+
+.k-webkit .k-scheduler-timecolumn > div > .k-icon
+{
+    vertical-align: top;
+}
+
+.k-scheduler-timecolumn > div > .k-i-arrow-e
+{
+    position: absolute;
+    right: -4px;
+}
+
+.k-scheduler-timecolumn .k-i-arrow-w
+{
+    margin-left: -4px;
+}
+
+.k-scheduler-mark
+{
+    display:inline-block;
+    width:1em;
+    height:1em;
+    vertical-align:middle;
+    margin-right:.5em;
+}
+
+.k-scheduler-agendaday
+{
+    float:left;
+    margin:0 .2em 0 0;
+    font-size:3em;
+    font-weight:normal;
+}
+
+.k-scheduler-agendaweek
+{
+    display:block;
+    margin:.4em 0 0;
+    font-size:1.1em;
+    font-style:normal;
+}
+
+.k-scheduler-agendadate
+{
+    font-size:.8em;
+}
+
+.k-scheduler-timecolumn
+{
+    white-space:nowrap;
+}
+
+.k-scheduler-edit-form .k-edit-form-container,
+.k-scheduler-timezones .k-edit-form-container
+{
+    width: 520px;
+}
+
+.k-scheduler-edit-form .k-edit-label
+{
+    width: 17%;
+}
+
+.k-scheduler-edit-form .k-edit-field
+{
+    width: 77%;
+}
+
+.k-scheduler-edit-form .k-textbox[name="title"],
+.k-scheduler-edit-form textarea.k-textbox
+{
+    width: 100%;
+}
+
+.k-scheduler-edit-form textarea.k-textbox
+{
+    min-height: 4em;
+    resize: vertical;
+}
+
+.k-scheduler-edit-form > .k-edit-box:first-child .k-datetimepicker
+{
+    margin-right: 1em;
+}
+
+.k-edit-box
+{
+    float: left;
+}
+
+.k-edit-box + .k-edit-box
+{
+    float: right;
+}
+
+.k-scheduler-edit-form label + input
+{
+    margin-left: 1em;
+}
+
+.k-edit-field > ul.k-reset > li
+{
+    margin: .2em 0 .4em;
+    line-height: 2.4;
+}
+
+.k-edit-field > ul.k-reset .k-widget
+{
+    margin-left: .8em;
+}
+
+.k-edit-field > ul.k-reset .k-numerictextbox,
+.k-edit-field span.k-recur-interval
+{
+    width: 5em;
+}
+
+.k-edit-field > ul.k-reset .k-dropdown,
+.k-edit-field > ul.k-reset .k-datepicker,
+div[name="recurrenceRule"] > .k-dropdown
+{
+    width: 8em;
+}
+
+.k-popup-message
+{
+    margin:0;
+    padding: 1em 0 2em;
+    text-align: center;
+}
+
+.k-scheduler-timezones .k-dropdown:first-child
+{
+    width: 100%;
+}
+
+.k-scheduler-timezones .k-dropdown + .k-dropdown
+{
+    margin: .5em 0 .7em;
 }
 
 /* Tooltip */
@@ -3135,15 +4501,23 @@ div.k-slider
     position: absolute;
     z-index: 20000;
     border-style: solid;
-    border-width: 2px;
+    border-width: 1px;
     padding: 4px 5px 4px 6px;
     background-repeat: repeat-x;
 
     min-width: 20px; /*slider tooltip only*/
     text-align: center; /*slider tooltip only*/
+}
 
-    filter: alpha(opacity=90);
-    opacity: .9;
+.k-tooltip-button
+{
+    text-align: right;
+    height: 0;
+}
+
+.k-tooltip-closable .k-tooltip-content
+{
+    padding-right: 20px;
 }
 
 span.k-tooltip
@@ -3162,74 +4536,47 @@ span.k-tooltip
 .k-callout
 {
     position: absolute;
-}
-
-.k-callout-n,
-.k-callout-s
-{
-    width: 11px;
-    height: 6px;
-}
-
-.k-callout-w,
-.k-callout-e
-{
-    width: 6px;
-    height: 11px;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 6px;
+    border-color: transparent;
 }
 
 .k-callout-n
 {
-    top: -7px;
-    left: 49%;
-    margin-left: -5px;
-    background-position: -162px -181px;
-}
-
-.k-tooltip-validation .k-callout-n
-{
-    background-position: -178px -181px;
+    top: -13px;
+    left: 50%;
 }
 
 .k-callout-w
 {
-    top: 49%;
-    left: -7px;
-    margin-top: -5px;
-    background-position: -165px -226px;
-}
-
-.k-tooltip-validation .k-callout-w
-{
-    background-position: -181px -226px;
+    top: 50%;
+    left: -13px;
 }
 
 .k-callout-s
 {
-    top: 100%;
-    left: 49%;
-    margin-top: 2px;
-    margin-left: -5px;
-    background-position: -162px -213px;
-}
-
-.k-tooltip-validation .k-callout-s
-{
-    background-position: -178px -213px;
+    left: 50%;
+    bottom: -13px;
 }
 
 .k-callout-e
 {
-    top: 49%;
-    left: 100%;
-    margin-top: -5px;
-    margin-left: 2px;
-    background-position: -165px -194px;
+    top: 50%;
+    right: -13px;
 }
 
-.k-tooltip-validation .k-callout-e
+.k-slider-tooltip .k-callout-n,
+.k-slider-tooltip .k-callout-s
 {
-    background-position: -181px -194px;
+    margin-left: -6px;
+}
+
+.k-slider-tooltip .k-callout-w,
+.k-slider-tooltip .k-callout-e
+{
+    margin-top: -6px;
 }
 
 .k-tooltip-validation .k-warning
@@ -3282,6 +4629,7 @@ span.k-tooltip
     border-style: solid;
     font-size: 0;
     outline: 0;
+    .prohibit-selection;
 }
 
 .k-splitter .k-ghost-splitbar-horizontal,
@@ -3367,22 +4715,36 @@ span.k-tooltip
 }
 
 .k-splitbar-horizontal .k-resize-handle { background-position: -165px -6px; }
+.k-splitbar-horizontal-hover > .k-resize-handle { background-position: -181px -6px; }
 .k-splitbar-horizontal .k-collapse-prev,
 .k-splitbar-horizontal .k-expand-next { background-position: -6px -174px; }
+.k-splitbar-horizontal-hover > .k-collapse-prev,
+.k-splitbar-horizontal-hover > .k-expand-next { background-position: -22px -174px; }
 .k-splitbar-horizontal .k-collapse-next,
 .k-splitbar-horizontal .k-expand-prev { background-position: -5px -142px; }
+.k-splitbar-horizontal-hover > .k-collapse-next,
+.k-splitbar-horizontal-hover > .k-expand-prev { background-position: -21px -142px; }
 
 .k-splitbar-vertical .k-resize-handle { background-position: -38px -309px; }
+.k-splitbar-vertical-hover > .k-resize-handle { background-position: -70px -309px; }
 .k-splitbar-vertical .k-collapse-prev,
 .k-splitbar-vertical .k-expand-next { background-position: 2px -134px; }
+.k-splitbar-vertical-hover > .k-collapse-prev,
+.k-splitbar-vertical-hover > .k-expand-next { background-position: -14px -134px; }
 .k-splitbar-vertical .k-collapse-next,
 .k-splitbar-vertical .k-expand-prev { background-position: 2px -165px; }
+.k-splitbar-vertical-hover > .k-collapse-next,
+.k-splitbar-vertical-hover > .k-expand-prev { background-position: -14px -165px; }
 
 /* Upload */
 
 html .k-upload
 {
     position: relative;
+}
+
+html .k-upload-empty
+{
     border-width: 0;
     background: none;
 }
@@ -3395,11 +4757,17 @@ html .k-upload
 
 .k-ie7 .k-dropzone em, .k-ie7 .k-upload-button { vertical-align: baseline; }
 
+.k-dropzone,
+.k-file
+{
+    position: relative;
+}
+
 .k-dropzone
 {
     border-style: solid;
     border-width: 0;
-    padding: 4px;
+    padding: .8em;
     background-color: transparent;
 }
 
@@ -3407,12 +4775,6 @@ html .k-upload
 {
     visibility: hidden;
     margin-left: .6em;
-}
-
-.k-dropzone-active
-{
-    border-width: 1px;
-    padding: 3px;
 }
 
 .k-dropzone-active em
@@ -3426,6 +4788,11 @@ html .k-upload
     width: 86px;
     overflow: hidden !important; /* important required by IE7 */
     direction: ltr;
+}
+
+.k-upload-sync .k-upload-button
+{
+    margin: .8em;
 }
 
 .k-upload-button input
@@ -3444,47 +4811,50 @@ html .k-upload
 
 .k-upload-files
 {
+    margin: 0 0 .6em;
+    line-height: 2.66;
     border-style: solid;
-    border-width: 1px;
-    margin: .2em 0 0;
-    padding: .3em .7em .5em;
-    line-height: 1.9em;
+    border-width: 1px 0 0;
 }
 
 .k-upload-files .k-button
 {
-    position: relative;
-    top: 1px;
+    padding: 0;
+}
+
+.k-upload-files .k-button,
+.k-upload-status-total .k-icon
+{
     margin-left: 8px;
-    padding-top: 0;
-    padding-bottom: 0;
-    font-size: 84%;
 }
 
 .k-ie7 .k-upload-files .k-button{line-height: 1;} /*IE7*/
-
-.k-upload .k-upload-action .k-icon
-{
-    width: 8px;
-    height: 8px;
-    vertical-align: baseline;
-}
-
-.k-upload .k-upload-files .k-delete,
-.k-upload .k-upload-files .k-cancel
-{
-    background-position: -164px -116px;
-}
 
 .k-upload .k-fail
 {
     background-position: -161px -111px;
 }
 
-.k-retry { background-position: -164px -132px; }
 .k-si-refresh { .sprite-hoverable(10, 8); }
 .k-si-tick, .k-success { .sprite-hoverable(10, 6); }
 .k-si-cancel { .sprite-hoverable(10, 7); }
+
+.k-file
+{
+    border-style: solid;
+    border-width: 0 0 1px;
+    padding: .167em .167em .167em .8em;
+}
+
+.k-file .k-icon
+{
+    position: relative;
+}
+
+.k-file > .k-icon
+{
+    .sprite-hoverable(7, 18);
+}
 
 .k-filename
 {
@@ -3493,6 +4863,7 @@ html .k-upload
     min-width: 120px;
     max-width: 200px;
     vertical-align: middle;
+    margin-left: 1em;
     padding-bottom: 2px;
 
     overflow: hidden;
@@ -3501,24 +4872,31 @@ html .k-upload
     white-space: nowrap;
 }
 
-.k-progress,
-.k-progress-status
+.k-upload-status
 {
     position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 118px;
-    height: 2px;
-    border-style: solid;
-    border-width: 1px;
-    background-repeat: repeat-x;
+    right: 12px;
+    top: .6em;
+    line-height: .7em;
 }
 
-.k-progress-status
+.k-upload-status .k-button,
+.k-upload-status .k-warning
 {
-    left: -1px;
-    bottom: -1px;
-    width: 50%;
+    vertical-align: text-bottom;
+}
+
+.k-dropzone .k-upload-status
+{
+    line-height: 2.4;
+}
+
+.k-progress
+{
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
 }
 
 .k-upload-selected
@@ -3531,6 +4909,18 @@ html .k-upload
     box-sizing: content-box;
 }
 .k-ie7 .k-upload-selected { min-width: 100px; }
+
+.k-upload-selected,
+.k-upload-cancel
+{
+    margin-bottom: .8em;
+}
+
+.k-upload-selected
+{
+    margin-left: .8em;
+    margin-right: .2em;
+}
 
 /* ImageBrowser */
 
@@ -3607,8 +4997,8 @@ html .k-upload
 {
     position: relative;
     float: left;
-    width: 78%;
-    padding-right:2px;
+    width: 79%;
+    padding-right: 2px;
 }
 
 .k-breadcrumbs-wrap
@@ -3643,39 +5033,68 @@ html .k-upload
     text-decoration: underline;
 }
 
-.k-imagebrowser .k-breadcrumbs .k-i-seek-w
+.k-imagebrowser
 {
-    text-decoration: none;
-    cursor: default;
-}
+    .k-breadcrumbs .k-i-seek-w
+    {
+        text-decoration: none;
+        cursor: default;
+    }
 
-.k-imagebrowser .k-toolbar
-{
-    clear: both;
-    border-style: solid;
-    border-width: 1px;
-    margin: 8px 0 0;
-    padding: 2px 0 3px;
-    background-repeat: repeat-x;
-    line-height: 23px;
-    white-space: nowrap; /*required by WebKit*/
-}
+    .k-toolbar
+    {
+        border-style: solid;
+        border-width: 1px;
+        margin: 8px 0 0;
+        padding: .25em;
+        line-height: 23px;
+        white-space: nowrap; /*required by WebKit*/
 
-.k-imagebrowser .k-upload
-{
-    float: left;
-    z-index: 10010;
-}
+        .k-button.k-state-disabled
+        {
+            display: none;
+        }
+    }
 
-.k-imagebrowser .k-upload-button
-{
-    width: auto;
-    vertical-align: top;
-}
+    .k-toolbar-wrap
+    {
+        float: left;
+    }
 
-.k-imagebrowser .k-upload .k-icon
-{
-    vertical-align: bottom;
+    .k-tiles-arrange
+    {
+        float: right;
+
+        .k-dropdown
+        {
+            width: 75px;
+        }
+    }
+
+    .k-upload
+    {
+        float: left;
+        z-index: 10010;
+        border-width: 0;
+        background-color: transparent;
+
+        .k-upload-status
+        {
+            display: none;
+        }
+
+        .k-upload-button
+        {
+            width: auto;
+            margin-left: 0;
+            vertical-align: top;
+        }
+
+        .k-icon
+        {
+            vertical-align: bottom;
+        }
+    }
 }
 
 .k-ie7 .k-imagebrowser .k-upload-button, .k-ie7 .k-imagebrowser .k-upload .k-icon { vertical-align: baseline; position: relative; top: 1px; }
@@ -3683,33 +5102,6 @@ html .k-upload
 .k-ie7 .k-imagebrowser .k-upload .k-icon { top: 2px; }
 
 .k-ie7 .k-imagebrowser .k-toolbar .k-button-icon { vertical-align: middle; }
-
-.k-toolbar .k-state-disabled,
-.k-plus-disabled, .k-minus-disabled
-{
-    filter: alpha(opacity=50);
-    opacity: .5;
-}
-
-.k-toolbar-wrap
-{
-    float: left;
-}
-
-.k-tiles-arrange
-{
-    float: right;
-}
-
-.k-tiles-arrange .k-i-arrow-s
-{
-    margin: 0 2px 0 3px;
-}
-
-.k-tiles-arrange a
-{
-    text-decoration: none;
-}
 
 .k-tiles
 {
@@ -3880,6 +5272,7 @@ html .k-upload
 .k-ie7 .k-timepicker,
 .k-ie7 .k-datepicker,
 .k-ie7 .k-datetimepicker,
+.k-ie7 .k-colorpicker,
 .k-ie7 .k-calendar,
 .k-ie7 .k-calendar .k-nav-fast,
 
@@ -3890,11 +5283,11 @@ html .k-upload
 
 .k-ie7 .k-colorpicker,
 .k-ie7 .k-colorpicker .k-tool-icon,
-.k-ie7 .k-colorpicker-popup .k-reset,
+.k-ie7 .k-palette.k-reset,
 
 .k-ie7 .k-editor-dialog .k-button,
 
-.k-form-text-row label,
+.k-ie7 .k-form-text-row label,
 
 .k-ie7 .k-tabstrip-items .k-item,
 .k-ie7 .k-tabstrip-items .k-link,
@@ -3907,7 +5300,15 @@ html .k-upload
 .k-ie7 .t-filename,
 
 .k-ie7 div.k-window,
-.k-ie7 .k-window-titlebar .k-window-action
+.k-ie7 .k-window-titlebar .k-window-action,
+
+.k-ie7 .k-scheduler-toolbar > ul > li,
+.k-ie7 .k-scheduler-footer > ul > li,
+.k-ie7 .k-scheduler-toolbar > ul > li,
+.k-ie7 .k-scheduler-footer > ul > li,
+
+.k-ie7 .k-event:hover .k-event-delete,
+.k-ie7 tr:hover > td > .k-task .k-event-delete
 
 { display: inline; zoom: 1; }
 

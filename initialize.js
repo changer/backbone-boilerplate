@@ -29,7 +29,7 @@ function(boot, loading) {
         complete = $.ajaxSettings.complete;
     $.ajaxSetup({
       beforeSend: function() {
-        if(this.url.indexOf(app.baseUrl) === 0) {
+        if(this.url.indexOf(app.baseUrl) === 0 || this.url.indexOf(app.root + app.prefix) === 0) {
           loading();
         }
         if(beforeSend) {
@@ -37,7 +37,7 @@ function(boot, loading) {
         }
       },
       complete: function() {
-        if(this.url.indexOf(app.baseUrl) === 0) {
+        if(this.url.indexOf(app.baseUrl) === 0 || this.url.indexOf(app.root + app.prefix) === 0) {
           loading(true);
         }
         return complete && complete();

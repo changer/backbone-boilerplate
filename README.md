@@ -32,5 +32,4 @@ Now you can start building your app!
 
 # Mind you!
 
-AFAIK only kendoui.js requires a commercial license, depending if your project is commercial or not.
-Make sure you check this!
+It's your responsibility to check which licenses you need while using any of the embedded libraries! Especially for KendoUI a commercial license must be purchased when using it in anything else than GPL-projects.

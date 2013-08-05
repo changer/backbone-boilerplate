@@ -1,13 +1,14 @@
 /*
-* Kendo UI Complete v2012.3.1315 (http://kendoui.com)
+* Kendo UI Beta v2013.2.716 (http://kendoui.com)
 * Copyright 2013 Telerik AD. All rights reserved.
 *
-* Kendo UI Complete commercial licenses may be obtained at
-* https://www.kendoui.com/purchase/license-agreement/kendo-ui-complete-commercial.aspx
-* If you do not own a commercial license, this file shall be governed by the trial license terms.
+* Kendo UI Beta license terms available at
+* http://www.kendoui.com/purchase/license-agreement/kendo-ui-beta.aspx
 */
+
 @image-folder: "Black";
 @texture: none;
+@tooltip-texture: url('textures/highlight.png');
 @fallback-texture: url('textures/glass.png');
 
 /* Widget Base Styles */
@@ -55,6 +56,12 @@
 @hover-border-color: @widget-border-color;
 @hover-shadow: none;
 
+/*Focused State*/
+@focused-border-color: @hover-border-color;
+@focused-shadow: 0 0 3px 0 @shadow-color;
+@focused-item-shadow: inset 0 0 3px 1px @hover-border-color;
+@focused-active-item-shadow: inset 0 0 3px 1px darken(@selected-border-color, 15%);
+
 /* Selected State */
 @selected-text-color: @widget-text-color;
 @selected-gradient: @widget-gradient;
@@ -78,9 +85,9 @@
 @disabled-text-color: #7a7a7a;
 
 /* ToolTip */
-@tooltip-text-color: #062430;
-@tooltip-background-color: #fff;
-@tooltip-border-color: #030303;
+@tooltip-text-color: #fff;
+@tooltip-background-color: #000;
+@tooltip-border-color: #000;
 
 /* Validation Message */
 @validation-text-color: #080808;
@@ -101,6 +108,22 @@
 
 /* Grid */
 @alt-background-color: #525252;
+@cell-border-color: #444;
+@column-highlight-background-color: #303030;
+
+/* Scheduler */
+@scheduler-background-color: #272727;
+@current-time-color: @error-border-color;
+@event-background-color: #0167cc;
+@event-text-color: @widget-text-color;
+
+/* Upload */
+@upload-progress-background-color: #366ba0;
+@upload-progress-text-color: @widget-text-color;
+@upload-success-background-color: #3f8b66;
+@upload-success-text-color: @widget-text-color;
+@upload-error-background-color: #aa2929;
+@upload-error-text-color: @widget-text-color;
 
 /* Loading Indicators */
 @loading-panel-color: #666;
@@ -112,10 +135,41 @@
 /* Border Radii */
 @main-border-radius: 4px;
 @list-border-radius: @main-border-radius - 1;
-@inner-border-radius: @main-border-radius - 2;
+@inner-border-radius: @main-border-radius - 1;
 @slider-border-radius: 13px;
 
 /* Icons */
 @default-icon-opacity: 0.85;
+
+@calendar-border-radius: 4px;
+@calendar-content-text-color: @widget-text-color;
+@calendar-footer-background: @widget-background-color;
+@calendar-footer-text-decoration: none;
+@calendar-footer-hover-text-decoration: underline;
+@calendar-footer-hover-background: @widget-background-color;
+@calendar-header-hover-text-decoration: none;
+@calendar-header-hover-background: @hover-background-color;
+@calendar-footer-active-background: @widget-background-color; 
+@button-border-color: @widget-border-color;
+@menu-border-color: #2b2b2b;
+@tabstrip-items-border: @widget-border-color;
+@tabstrip-active-background: @widget-background-color;
+@tabstrip-tabs-color: @widget-text-color;
+@form-widget-color: @widget-text-color;
+@drop-down-border-color: @widget-border-color;
+@drop-down-hover-border-color: @widget-border-color;
+@drop-down-focused-border-color: @widget-border-color;
+@calendar-group-background-color: @group-background-color; 
+@drop-down-background: #1d1d1d;
+@drop-down-text-color: @widget-text-color;
+@secondary-border-color: @widget-border-color;
+@secondary-text-color: @widget-text-color;
+@numeric-selected-background: @selected-background-color; 
+@panelbar-items-border: @widget-border-color;
+@panelbar-content-background: @content-background-color;
+@panelbar-content-color: @widget-text-color;
+@window-shadow-style: 1px 1px 7px 1px;
+@filter-menu-content-background: @content-background-color;
+@icon-background-color: transparent;
 
 @import "template.less";
