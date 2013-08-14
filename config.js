@@ -5,7 +5,7 @@ requirejs.config({
   paths: {
 
     jquery:             'boilerplate/libs/jquery',
-    lodash:             'boilerplate/libs/lodash',
+    underscore:         'boilerplate/libs/lodash',
     backbone:           'boilerplate/libs/backbone',
 
     layoutmanager:      'boilerplate/libs/backbone.layoutmanager',
@@ -22,6 +22,7 @@ requirejs.config({
     select2:            'boilerplate/libs/select2',
     prettyCheckable:    'boilerplate/libs/prettyCheckable',
     bootstrap:          'boilerplate/libs/bootstrap',
+    bootstrap3:          'boilerplate/libs/bootstrap3',
     notify:             'boilerplate/libs/bootstrap-notify',
     kendoui:            'boilerplate/libs/kendoui',
 
@@ -31,20 +32,20 @@ requirejs.config({
 
   shim: {
     backbone: {
-      deps: ['lodash', 'jquery'],
+      deps: ['underscore', 'jquery'],
       exports: 'Backbone'
     },
 
-    lodash: {
+    underscore: {
         exports: '_'
     },
 
-    layoutmanager:      ['backbone'],
+    layoutmanager:      ['backbone', 'underscore'],
     routefilter:        ['backbone'],
     queryparams:        ['backbone'],
 
     bootstrap:          ['jquery'],
-    notify:             ['bootstrap'],
+    bootstrap3:         ['jquery'],
     select2:            ['jquery'],
     prettyCheckable:    ['jquery'],
     kendoui:            ['jquery'],

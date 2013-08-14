@@ -85,13 +85,13 @@ function(boot, loading) {
 
       prefix: app.prefix,
 
-      fetch: function(path) {
+      fetchTemplate: function(path) {
         path = path + '.html';
         return JST[path] || fetchTemplate(path, this.async());
       },
 
       // use in templates to render partial templates, like: <%= partial('template', model.partialModel) %>
-      render: function(template, context) {
+      renderTemplate: function(template, context) {
         // Apply extension methods
         var context_ = $.extend({
           partial: partial
