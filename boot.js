@@ -14,7 +14,7 @@ define([
       _(arguments).chain().toArray().slice(1).flatten().map(function(model) {
         return model.fetch().done();
       }).value()
-    ).done(callback);
+    ).always(callback);
   };
 
   // See https://github.com/tbranyen/backbone.layoutmanager/issues/158
