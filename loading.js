@@ -1,9 +1,25 @@
 define([], function() {
-  return function(off, el) {
+  return function(off, el, name) {
     off = !!off;
     el = el || $('body');
     var loader = $('.loader'),
-        visible = loader.hasClass('visible');
+        visible = loader.hasClass('visible'),
+        names = loader.data('names') || [];
+    if(name) {
+      if(off) {
+        var index = names.indexOf(name);
+        if(index > -1) {
+          names.splice(index, 1);
+        }
+      }
+      else {
+        names.push(name);
+      }
+      loader.data('names', names);
+    }
+    if(off && names.length) {
+      return;
+    }
     // Only toggle when necessary
     if(off === visible) {
       if(!loader.parent().is(el)) {
@@ -12,7 +28,6 @@ define([], function() {
         }
         loader.appendTo(el);
       }
-      else if(off && !loader.p)
       if(loader.data('timer')) {
         clearTimeout(loader.data('timer'));
         loader.removeData('timer');
