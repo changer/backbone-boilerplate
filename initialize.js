@@ -30,7 +30,7 @@ function(boot, loading) {
     $.ajaxSetup({
       beforeSend: function() {
         if(this.url.indexOf(app.baseUrl) === 0 || this.url.indexOf(app.root + app.prefix) === 0) {
-          loading();
+          loading(false, null, this.url);
         }
         if(beforeSend) {
           return beforeSend.apply(this, _.toArray(arguments));
@@ -38,7 +38,7 @@ function(boot, loading) {
       },
       complete: function() {
         if(this.url.indexOf(app.baseUrl) === 0 || this.url.indexOf(app.root + app.prefix) === 0) {
-          loading(true);
+          loading(true, null, this.url);
         }
         return complete && complete();
       }
