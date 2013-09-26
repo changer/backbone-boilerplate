@@ -119,6 +119,9 @@ function(boot, loading) {
       embedded: embedded,
       clickEvent: mobile ? 'tap' : 'click',
       useLayout: function(name, options) {
+        if(this.lazyRendering && this.layout && this.layout.options.name === name) {
+          return this.layout;
+        }
         var app = this,
             oldLayout = this.layout,
             layout = new Backbone.Layout(_.extend({
@@ -136,7 +139,7 @@ function(boot, loading) {
         };
 
         this.layout = layout;
-        if(!app.started) {
+        if(!this.started) {
           if(window.onBackboneLoad) {
             window.onBackboneLoad(app);
           }
