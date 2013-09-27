@@ -130,7 +130,7 @@ function(boot, loading) {
               className: 'layout ' + name
             }, options));
 
-        layout.bind('afterRender', function() {
+        layout.once('afterRender', function() {
           return app.switchLayout && app.switchLayout(oldLayout, layout);
         });
 
