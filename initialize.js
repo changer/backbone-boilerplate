@@ -15,9 +15,10 @@ function(boot, loading) {
 
     if(app.live) {
       // Inject global afterRender trigger for loading our live jquery stuff
-      var viewRender = Backbone.Layout._viewRender;
-      Backbone.Layout._viewRender = function(root) {
-        root.on('afterRender', function() {
+      var viewRender = Backbone.Layout.prototype._viewRender;
+      Backbone.Layout.prototype._viewRender = function() {
+        var root = this;
+        root.bind('afterRender', function() {
           app.live(root.el);
         });
         return viewRender.apply(this, Array.prototype.slice.call(arguments));
@@ -136,6 +137,7 @@ function(boot, loading) {
 
         layout.renderOnFetch = function() {
           Backbone.FetchParallel(_.bind(this.render, this), _(arguments).toArray());
+          return this;
         };
 
         this.layout = layout;
