@@ -16,7 +16,7 @@ requirejs.config({
     iframetransport:    'boilerplate/libs/jquery.iframe-transport',
     toe:                'boilerplate/libs/jquery.toe',
 
-    fastactive:      'boilerplate/libs/fastactive.js',
+    fastactive:         'boilerplate/libs/fastactive',
 
     jed:                'boilerplate/libs/jed',
     po2json:            'boilerplate/libs/po2json',
