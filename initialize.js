@@ -3,7 +3,8 @@ define([
   'boilerplate/loading',
   'layoutmanager',
   'routefilter',
-  'toe'
+  'toe',
+  'fastactive'
 ],
 
 function(boot, loading) {
