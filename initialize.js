@@ -50,26 +50,27 @@ function(boot, loading) {
     var JST = window.JST = window.JST || {};
 
     // Partial templates
-    var fetchTemplate = function(path, callback) {
-          var url = app.root + path;
-          if(JST[path]) {
-            return callback ? callback(JST[path]) : JST[path];
-          }
-          else if(window.getStaticFile) {
-            JST[path] = _.template(getStaticFile(url), null, { variable: 'context', sourceURL: path });
-            return callback ? callback(JST[path]) : JST[path];
-          }
-          else if(callback) {
-            return $.ajax({ url: url }).then(function(contents) {
-              callback(JST[path] = _.template(contents, null, { variable: 'context', sourceURL: path }));
-            });
-          }
-          else {
-            JST[path] = _.template($.ajax({ url: url, async: false }).responseText, null, { variable: 'context', sourceURL: path });
-            return JST[path];
-          }
-        },
-        partial = function(path, context, className, attr) {
+    app.fetchTemplate = function(path, callback) {
+      var url = app.root + path;
+      if(JST[path]) {
+        return callback ? callback(JST[path]) : JST[path];
+      }
+      else if(window.getStaticFile) {
+        JST[path] = _.template(getStaticFile(url), null, { variable: 'context', sourceURL: path });
+        return callback ? callback(JST[path]) : JST[path];
+      }
+      else if(callback) {
+        return $.ajax({ url: url }).then(function(contents) {
+          callback(JST[path] = _.template(contents, null, { variable: 'context', sourceURL: path }));
+        });
+      }
+      else {
+        JST[path] = _.template($.ajax({ url: url, async: false }).responseText, null, { variable: 'context', sourceURL: path });
+        return JST[path];
+      }
+    };
+
+    var partial = function(path, context, className, attr) {
           if(typeof(className) !== 'string') {
             attr = className;
             className = '';
@@ -77,7 +78,7 @@ function(boot, loading) {
           attr = _(_(context || {}).clone()).extend(attr || {});
           attr.partial = partial;
           path = Backbone.Layout.prototype.options.prefix + path + '.html';
-          var result = $($.trim(fetchTemplate(path).call(context, attr))).addClass(className);
+          var result = $($.trim(app.fetchTemplate(path).call(context, attr))).addClass(className);
           return $('<div />').append(result).html();
         };
 
@@ -89,7 +90,7 @@ function(boot, loading) {
 
       fetchTemplate: function(path) {
         path = path + '.html';
-        return JST[path] || fetchTemplate(path, this.async());
+        return JST[path] || app.fetchTemplate(path, this.async());
       },
 
       // use in templates to render partial templates, like: <%= partial('template', model.partialModel) %>
