@@ -10,6 +10,7 @@ define([
 function(boot, loading) {
 
   window.console = window.console || { log: function() {} };
+
   var html = $('html'), body = $('body');
 
   return function(app) {
@@ -84,8 +85,8 @@ function(boot, loading) {
 
     // Configure LayoutManager with Backbone Boilerplate defaults.
     Backbone.Layout.configure({
-      manage: true,
 
+      manage: true,
       prefix: app.prefix,
 
       fetchTemplate: function(path) {
@@ -93,18 +94,13 @@ function(boot, loading) {
         return JST[path] || app.fetchTemplate(path, this.async());
       },
 
-      // use in templates to render partial templates, like: <%= partial('template', model.partialModel) %>
+      // use in templates to render partial templates
+      // like: <%= context.partial('template', model.partialModel) %>
       renderTemplate: function(template, context) {
-        // Apply extension methods
-        var context_ = $.extend({
-          partial: partial
-        }, context);
-        if(app.templateContext) {
-          context_ = $.extend(context_, app.templateContext);
-        }
-        // Return trimmed version of template, however always at least an empty space for preventing caching issues
-        return $.trim(template(context_)) || ' ';
+        // Trim template, at least a space to prevent caching issues
+        return $.trim(template($.extend({ partial: partial }, context, app.templateContext))) || ' ';
       }
+
     });
 
     var mobile = /(android|mobile)/i.test(navigator.userAgent),
@@ -188,6 +184,7 @@ function(boot, loading) {
       }
 
       body.on(app.clickEvent, options.bypassSelectors, function(e) {
+
         var link = $(this),
             href = {
               prop: link.prop('href'),
@@ -206,6 +203,7 @@ function(boot, loading) {
             Backbone.history.navigate(href.attr, true);
           }
         }
+
       });
       if(app.mobile) {
         body.on('click', 'a:not([data-bypass])', function(e) {
