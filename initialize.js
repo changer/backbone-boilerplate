@@ -100,7 +100,7 @@ function(boot, loading) {
           partial: partial
         }, context);
         if(app.templateContext) {
-          context_ = $.extend(app.templateContext, context_);
+          context_ = $.extend(context_, app.templateContext);
         }
         // Return trimmed version of template, however always at least an empty space for preventing caching issues
         return $.trim(template(context_)) || ' ';
