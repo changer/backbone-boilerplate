@@ -130,6 +130,15 @@ function(boot, loading) {
             }, options));
 
         layout.once('afterRender', function() {
+          // After the first render, only render explicit views if set
+          if(app.explicitRenderViews) {
+            layout.render = function() {
+              _.each(app.explicitRenderViews, function(view) {
+                return layout.views[view] && layout.views[view].render();
+              });
+              return this;
+            };
+          }
           return app.switchLayout && app.switchLayout(oldLayout, layout);
         });
 
@@ -171,7 +180,7 @@ function(boot, loading) {
       }
 
       options = options || {};
-      options.root = options.root || app.root;
+      options.root = options.root || '/';
       options.pushState = options.pushState === false ? false : !app.embedded;
       options.bypassSelectors = options.bypassSelectors || 'a[href]:not([data-bypass])';
       options.alwaysReload = options.alwaysReload || false;
@@ -190,7 +199,7 @@ function(boot, loading) {
               prop: link.prop('href'),
               attr: link.attr('href')
             },
-            root = /^http/.test(app.root) ? app.root : (location.protocol + '//' + location.host + app.root);
+            root = location.protocol + '//' + location.host + options.root;
 
         if((/^(content|file):\/\/+/.test(href.prop) || href.prop.slice(0, root.length) === root)) {
           e.preventDefault();
@@ -205,8 +214,9 @@ function(boot, loading) {
         }
 
       });
+
       if(app.mobile) {
-        body.on('click', 'a:not([data-bypass])', function(e) {
+        body.on('click', options.bypassSelectors, function(e) {
           e.preventDefault();
         });
         html.addClass('untouched');
