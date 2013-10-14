@@ -136,6 +136,7 @@ function(boot, loading) {
               _.each(app.explicitRenderViews, function(view) {
                 return layout.views[view] && layout.views[view].render();
               });
+              layout.trigger('afterRender');
               return this;
             };
           }
