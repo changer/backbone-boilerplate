@@ -4,6 +4,8 @@ requirejs.config({
 
   paths: {
 
+    text:               'boilerplate/libs/require-text',
+
     jquery:             'boilerplate/libs/jquery',
     underscore:         'boilerplate/libs/lodash',
     backbone:           'boilerplate/libs/backbone',
