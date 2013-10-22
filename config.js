@@ -26,7 +26,8 @@ requirejs.config({
     select2:            'boilerplate/libs/select2',
     prettyCheckable:    'boilerplate/libs/prettyCheckable',
     bootstrap:          'boilerplate/libs/bootstrap',
-    bootstrap3:          'boilerplate/libs/bootstrap3',
+    bootstrap3:         'boilerplate/libs/bootstrap3',
+    bootbox:            'boilerplate/libs/bootbox',
     notify:             'boilerplate/libs/bootstrap-notify',
     kendoui:            'boilerplate/libs/kendoui',
 
