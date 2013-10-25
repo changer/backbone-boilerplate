@@ -51,6 +51,7 @@ requirejs.config({
 
     bootstrap:          ['jquery'],
     bootstrap3:         ['jquery'],
+    notify:             ['jquery'],
     bootbox:            ['bootstrap3'],
     select2:            ['jquery'],
     prettyCheckable:    ['jquery'],
