@@ -18,6 +18,7 @@ requirejs.config({
     iframetransport:    'boilerplate/libs/jquery.iframe-transport',
     toe:                'boilerplate/libs/jquery.toe',
 
+    livestamp:          'boilerplate/libs/livestamp.js',
     moment:	        'boilerplate/libs/moment.js',
 
     fastactive:         'boilerplate/libs/fastactive',
