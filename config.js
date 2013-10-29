@@ -16,7 +16,7 @@ requirejs.config({
 
     moment:             'boilerplate/libs/moment',
 
-    livestamp:          'boilerplate/libs/livestamp.js',
+    livestamp:          'boilerplate/libs/livestamp',
     timeago:            'boilerplate/libs/jquery.timeago',
     iframetransport:    'boilerplate/libs/jquery.iframe-transport',
     toe:                'boilerplate/libs/jquery.toe',
