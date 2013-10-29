@@ -14,12 +14,12 @@ requirejs.config({
     routefilter:        'boilerplate/libs/backbone.routefilter',
     queryparams:        'boilerplate/libs/backbone.queryparams',
 
+    moment:	        'boilerplate/libs/moment.js',
+
     timeago:            'boilerplate/libs/jquery.timeago',
+    livestamp:          'boilerplate/libs/livestamp.js',
     iframetransport:    'boilerplate/libs/jquery.iframe-transport',
     toe:                'boilerplate/libs/jquery.toe',
-
-    livestamp:          'boilerplate/libs/livestamp.js',
-    moment:	        'boilerplate/libs/moment.js',
 
     fastactive:         'boilerplate/libs/fastactive',
 
@@ -60,6 +60,7 @@ requirejs.config({
     prettyCheckable:    ['jquery'],
     kendoui:            ['jquery'],
     timeago:            ['jquery'],
+    livestamp:          ['jquery', 'moment'],
     iframetransport:    ['jquery'],
     toe:                ['jquery']
 
