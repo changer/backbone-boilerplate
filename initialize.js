@@ -210,7 +210,7 @@ function(boot, loading) {
             Backbone.history.loadUrl(href.attr);
           }
           else {
-            Backbone.history.navigate(href.attr, true);
+            Backbone.history.navigate(href.attr.replace(/^(\/?)#/g, '$1'), true);
           }
         }
 
