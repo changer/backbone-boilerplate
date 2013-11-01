@@ -150,7 +150,7 @@ function(boot, loading) {
 
         if(href.prop && (/^file:\/\/\//.test(href.prop) || href.prop.slice(0, root.length) === root)) {
           e.preventDefault();
-          Backbone.history.navigate(href.attr, true);
+          Backbone.history.navigate(href.attr.replace(/^(\/?)#/g, '$1'), true);
         }
       });
       if(app.mobile) {
