@@ -13,6 +13,7 @@ requirejs.config({
     layoutmanager:      'boilerplate/libs/backbone.layoutmanager',
     routefilter:        'boilerplate/libs/backbone.routefilter',
     queryparams:        'boilerplate/libs/backbone.queryparams',
+    epoxy:              'boilerplate/libs/backbone.epoxy',
 
     moment:             'boilerplate/libs/moment',
 
@@ -51,6 +52,7 @@ requirejs.config({
     layoutmanager:      ['backbone', 'underscore'],
     routefilter:        ['backbone'],
     queryparams:        ['backbone'],
+    epoxy:              ['backbone'],
 
     bootstrap:          ['jquery'],
     bootstrap3:         ['jquery'],
