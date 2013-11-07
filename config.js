@@ -40,6 +40,9 @@ requirejs.config({
   },
 
   shim: {
+
+    boot:               ['boilerplate/boot'],
+
     backbone: {
       deps: ['underscore', 'jquery'],
       exports: 'Backbone'

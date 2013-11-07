@@ -1,7 +1,8 @@
 define([
   'jquery',
   'underscore',
-  'backbone'
+  'backbone',
+  'layoutmanager'
 ], function($, _, Backbone) {
 
   Backbone.Module = function(additionalProps) {
@@ -17,13 +18,4 @@ define([
     ).always(callback);
   };
 
-  // See https://github.com/tbranyen/backbone.layoutmanager/issues/158
-  Backbone.View.prototype.reset = function() {
-    if(this.__manager__ && this.__manager__.viewDeferred && this.__manager__.viewDeferred.done) {
-      this.__manager__.viewDeferred.done(this.render);
-    }
-    else {
-      this.render();
-    }
-  };
 });
