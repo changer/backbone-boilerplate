@@ -52,21 +52,22 @@ function(boot, loading) {
 
     // Partial templates
     app.fetchTemplate = function(path, callback) {
+      var variable = app.templateContextName || 'context';
       var url = app.root + path;
       if(JST[path]) {
         return callback ? callback(JST[path]) : JST[path];
       }
       else if(window.getStaticFile) {
-        JST[path] = _.template(getStaticFile(url), null, { variable: 'context', sourceURL: path });
+        JST[path] = _.template(getStaticFile(url), null, { variable: variable, sourceURL: path });
         return callback ? callback(JST[path]) : JST[path];
       }
       else if(callback) {
         return $.ajax({ url: url }).then(function(contents) {
-          callback(JST[path] = _.template(contents, null, { variable: 'context', sourceURL: path }));
+          callback(JST[path] = _.template(contents, null, { variable: variable, sourceURL: path }));
         });
       }
       else {
-        JST[path] = _.template($.ajax({ url: url, async: false }).responseText, null, { variable: 'context', sourceURL: path });
+        JST[path] = _.template($.ajax({ url: url, async: false }).responseText, null, { variable: variable, sourceURL: path });
         return JST[path];
       }
     };
