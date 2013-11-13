@@ -6,7 +6,8 @@ requirejs.config({
 
     text:               'boilerplate/libs/require-text',
 
-    jquery:             'boilerplate/libs/jquery' + (window.USE_JQUERY_2 ? '2' : ''),
+    jquery:             'boilerplate/libs/jquery',
+    jquery2:             'boilerplate/libs/jquery2',
     underscore:         'boilerplate/libs/lodash',
     backbone:           'boilerplate/libs/backbone',
 
