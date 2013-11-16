@@ -7,7 +7,7 @@ requirejs.config({
     text:               'boilerplate/libs/require-text',
 
     jquery:             'boilerplate/libs/jquery',
-    jquery2:             'boilerplate/libs/jquery2',
+    jquery2:            'boilerplate/libs/jquery2',
     underscore:         'boilerplate/libs/lodash',
     backbone:           'boilerplate/libs/backbone',
 
@@ -36,7 +36,9 @@ requirejs.config({
     notify:             'boilerplate/libs/bootstrap-notify',
     kendoui:            'boilerplate/libs/kendoui',
 
-    modal:              'boilerplate/libs/backbone.bootstrap-modal'
+    modal:              'boilerplate/libs/backbone.bootstrap-modal',
+
+    overthrow:          'boilerplate/libs/overthrow'
 
   },
 
