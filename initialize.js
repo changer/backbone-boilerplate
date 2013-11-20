@@ -108,6 +108,7 @@ function(boot, loading) {
 
     var mobile = /(android|mobile)/i.test(navigator.userAgent),
         android = /android/i.test(navigator.userAgent),
+        androidBrowser = /mozilla\/5\.0.*?android.*?applewebkit/i.test(navigator.userAgent) && !/chrome/i.test(navigator.userAgent),
         ios = /(iphone|ipad)/i.test(navigator.userAgent),
         phone = /(android|phone)/i.test(navigator.userAgent),
         embedded = !/https?:\/\//.test(document.location.href);
@@ -116,6 +117,7 @@ function(boot, loading) {
       loading: loading,
       mobile: mobile,
       android: android,
+      androidBrowser: androidBrowser,
       ios: ios,
       phone: phone,
       embedded: embedded,
@@ -170,6 +172,9 @@ function(boot, loading) {
         }
         if(android) {
           html.addClass('android');
+          if(androidBrowser) {
+            html.addClass('android-browser');
+          }
         }
       }
       else {
@@ -195,7 +200,11 @@ function(boot, loading) {
         Backbone.history.navigate('/', true);
       }
 
-      html.on('tap', options.bypassSelectors, function(e) {
+      html.on('click tap', options.bypassSelectors, function(e) {
+
+        if(e.type === 'click') {
+          return e.preventDefault();
+        }
 
         var link = $(this),
             href = {
