@@ -3,7 +3,7 @@ define([
   'boilerplate/loading',
   'layoutmanager',
   'routefilter',
-  'toe',
+  'hammer',
   'fastactive'
 ],
 
@@ -12,6 +12,8 @@ function(boot, loading) {
   window.console = window.console || { log: function() {} };
 
   var html = $('html'), body = $('body');
+
+  html.hammer();
 
   return function(app) {
 
@@ -117,7 +119,6 @@ function(boot, loading) {
       ios: ios,
       phone: phone,
       embedded: embedded,
-      clickEvent: mobile ? 'tap' : 'click',
       useLayout: function(name, options) {
         if(this.lazyRendering && this.layout && this.layout.options.name === name) {
           return this.layout;
@@ -194,7 +195,7 @@ function(boot, loading) {
         Backbone.history.navigate('/', true);
       }
 
-      body.on(app.clickEvent, options.bypassSelectors, function(e) {
+      html.on('tap', options.bypassSelectors, function(e) {
 
         var link = $(this),
             href = {
