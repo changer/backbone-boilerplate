@@ -7,15 +7,13 @@
 
 (function(root, factory) {
 
-	var backbone = 'backbone';
-	var underscore = 'underscore';
 
 	if (typeof exports !== 'undefined') {
 		// Define as CommonJS export:
-		module.exports = factory(require(underscore), require(backbone));
+		module.exports = factory(require("underscore"), require("backbone"));
 	} else if (typeof define === 'function' && define.amd) {
 		// Define as AMD:
-		define([underscore, backbone], factory);
+		define(["underscore", "backbone"], factory);
 	} else {
 		// Just run it:
 		factory(root._, root.Backbone);
@@ -73,7 +71,7 @@
 		constructor: function(attributes, options) {
 			_.extend(this, _.pick(options||{}, modelProps));
 			modelSuper(this, 'constructor', arguments);
-			this.initComputeds();
+			this.initComputeds(attributes, options);
 		},
 
 		// Gets a copy of a model attribute value:
@@ -159,11 +157,16 @@
 		// Initializes the Epoxy model:
 		// called automatically by the native constructor,
 		// or may be called manually when adding Epoxy as a mixin.
-		initComputeds: function() {
+		initComputeds: function(attributes, options) {
 			this.clearComputeds();
 
+			// Resolve computeds hash, and extend it with any preset attribute keys:
+			// TODO: write test.
+			var computeds = _.result(this, 'computeds')||{};
+			computeds = _.extend(computeds, _.pick(attributes||{}, _.keys(computeds)));
+
 			// Add all computed attributes:
-			_.each(_.result(this, 'computeds')||{}, function(params, attribute) {
+			_.each(computeds, function(params, attribute) {
 				params._init = 1;
 				this.addComputed(attribute, params);
 			}, this);
@@ -630,26 +633,25 @@
 					});
 
 					// Hide element before manipulating:
-					$element.hide();
+					$element.children().detach();
+					var frag = document.createDocumentFragment();
 
 					if (sort) {
 						// Sort existing views:
 						collection.each(function(model) {
-							$element.append(views[model.cid].$el);
+							frag.appendChild(views[model.cid].el);
 						});
 
 					} else {
 						// Reset with new views:
 						this.clean();
-
 						collection.each(function(model) {
 							views[ model.cid ] = view = new collection.view({model: model});
-							$element.append(view.$el);
+							frag.appendChild(view.el);
 						});
 					}
 
-					// Show element after manipulating:
-					$element.show();
+					$element.append(frag);
 				}
 
 				// Restore cached dependency graph configuration:
@@ -702,7 +704,6 @@
 				var optionsEmpty = readAccessor(self.e);
 				var optionsDefault = readAccessor(self.d);
 				var currentValue = readAccessor(self.v);
-				var selection = isArray(currentValue) ? currentValue : [ currentValue ];
 				var options = isCollection(value) ? value.models : value;
 				var numOptions = options.length;
 				var enabled = true;
@@ -712,7 +713,7 @@
 				// display placeholder and disable select menu.
 				if (!numOptions && !optionsDefault && optionsEmpty) {
 
-					html += self.opt(optionsEmpty, numOptions, selection);
+					html += self.opt(optionsEmpty, numOptions);
 					enabled = false;
 
 				} else {
@@ -725,12 +726,12 @@
 
 					// Create all option items:
 					_.each(options, function(option, index) {
-						html += self.opt(option, numOptions, selection);
+						html += self.opt(option, numOptions);
 					});
 				}
 
 				// Set new HTML to the element and toggle disabled status:
-				$element.html(html).prop('disabled', !enabled);
+				$element.html(html).prop('disabled', !enabled).val(currentValue);
 
 				// Pull revised value with new options selection state:
 				var revisedValue = $element.val();
@@ -741,7 +742,7 @@
 					self.v(revisedValue);
 				}
 			},
-			opt: function(option, numOptions, selection) {
+			opt: function(option, numOptions) {
 				// Set both label and value as the raw option object by default:
 				var label = option;
 				var value = option;
@@ -756,11 +757,7 @@
 					value = isModel(option) ? option.get(valueAttr) : option[ valueAttr ];
 				}
 
-				// Configure selection-state option fragment:
-				// option should be selected if it's the only item (default/empty), or exists in the selection:
-				var select = (!numOptions || _.contains(selection, value)) ? '" selected="selected">' : '">';
-
-				return '<option value="'+ value + select + label +'</option>';
+				return ['<option value="', value, '">', label, '</option>'].join('');
 			},
 			clean: function() {
 				this.d = this.e = this.v = 0;
@@ -945,9 +942,6 @@
 
 	Epoxy.View = Backbone.View.extend({
 
-		/* REPLACED constructor with initialize
-		   BY RUBEN STOLK FOR BACKBONE 1.1.0 COMPATIBILITY
-
 		// Backbone.View constructor override:
 		// sets up binding controls around call to super.
 		constructor: function(options) {
@@ -955,14 +949,6 @@
 			viewSuper(this, 'constructor', arguments);
 			this.applyBindings();
 		},
-
-		*/
-
-		initialize: function() {
-      this.on('afterRender', function() {
-        this.applyBindings();
-      }, this);
-    },
 
 		// Bindings list accessor:
 		b: function() {
@@ -1027,7 +1013,6 @@
 				var getter = isFunction(computed) ? computed : computed.get;
 				var setter = computed.set;
 				var deps = computed.deps;
-				getter.id = name;
 
 				context[ name ] = function(value) {
 					return (!isUndefined(value) && setter) ?
@@ -1069,12 +1054,12 @@
 
 		// Gets a value from the binding context:
 		getBinding: function(attribute) {
-			return accessViewContext(this._c, arguments, attribute);
+			return accessViewContext(this._c, attribute);
 		},
 
 		// Sets a value to the binding context:
 		setBinding: function(attribute, value) {
-			return accessViewContext(this._c, arguments, attribute, value);
+			return accessViewContext(this._c, attribute, value);
 		},
 
 		// Disposes of all view bindings:
@@ -1151,7 +1136,7 @@
 
 	// Attribute data accessor:
 	// exchanges individual attribute values with model sources.
-	// This function is broken out from the accessor creation process for performance.
+	// This function is separated out from the accessor creation process for performance.
 	// @param source: the model data source to interact with.
 	// @param attribute: the model attribute to read/write.
 	// @param value: the value to set, or 'undefined' to get the current value.
@@ -1163,9 +1148,10 @@
 		if (!isUndefined(value)) {
 
 			// Set Object (non-null, non-array) hashtable value:
-			if (!isObject(value) || isArray(value)) {
-				var val = _.clone(value);
-				(value = {})[attribute] = val;
+			if (!isObject(value) || isArray(value) || _.isDate(value)) {
+				var val = value;
+				value = {};
+				value[attribute] = val;
 			}
 
 			// Set value:
@@ -1229,10 +1215,8 @@
 
 	// Gets and sets view context data attributes:
 	// used by the implementations of "getBinding" and "setBinding".
-	function accessViewContext(context, args, attribute, value) {
-		if (args.callee.caller && args.callee.caller.id === attribute) {
-			throw('Recursive access error: '+attribute);
-		} else if (context && context.hasOwnProperty(attribute)) {
+	function accessViewContext(context, attribute, value) {
+		if (context && context.hasOwnProperty(attribute)) {
 			return isUndefined(value) ? readAccessor(context[attribute]) : context[attribute](value);
 		}
 	}
