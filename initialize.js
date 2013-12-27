@@ -211,17 +211,18 @@ function(boot, loading) {
               prop: link.prop('href'),
               attr: link.attr('href')
             },
+            url = href.attr.replace(new RegExp('^' + options.root.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\\$&')), ''),
             root = location.protocol + '//' + location.host + options.root;
 
         if((/^(content|file):\/\/+/.test(href.prop) || href.prop.slice(0, root.length) === root)) {
           e.preventDefault();
           Backbone.history.reloaded = false;
-          if(options.alwaysReload && Backbone.history.fragment === href.attr.replace(/^\/+/, '')) {
+          if(options.alwaysReload && Backbone.history.fragment === url.replace(/^\/+/, '')) {
             Backbone.history.reloaded = true;
-            Backbone.history.loadUrl(href.attr);
+            Backbone.history.loadUrl(url);
           }
           else {
-            Backbone.history.navigate(href.attr.replace(/^(\/?)#/g, '$1'), true);
+            Backbone.history.navigate(url.replace(/^(\/?)#/g, '$1'), true);
           }
         }
 
