@@ -34,18 +34,18 @@ function(boot, loading) {
         complete = $.ajaxSettings.complete;
     $.ajaxSetup({
       beforeSend: function() {
+        if(!this.url) console.log(this);
         if(this.url.indexOf(app.baseUrl) === 0 || this.url.indexOf(app.root + app.prefix) === 0) {
           loading(false, null, this.url);
         }
-        if(beforeSend) {
-          return beforeSend.apply(this, _.toArray(arguments));
-        }
+        return beforeSend && beforeSend.apply(this, _.toArray(arguments));
       },
       complete: function() {
+        if(!this.url) console.log(this);
         if(this.url.indexOf(app.baseUrl) === 0 || this.url.indexOf(app.root + app.prefix) === 0) {
           loading(true, null, this.url);
         }
-        return complete && complete();
+        return complete && complete.apply(this, _.toArray(arguments));
       }
     });
 
