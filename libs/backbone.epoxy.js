@@ -948,14 +948,6 @@
 
 	Epoxy.View = Backbone.View.extend({
 
-		// Backbone.View constructor override:
-		// sets up binding controls around call to super.
-		constructor: function(options) {
-			_.extend(this, _.pick(options||{}, viewProps));
-			viewSuper(this, 'constructor', arguments);
-			this.applyBindings();
-		},
-
 		// Bindings list accessor:
 		b: function() {
 			return this._b || (this._b = []);
@@ -1087,6 +1079,21 @@
 		}
 
 	}, mixins);
+
+	if(parseFloat(Backbone.VERSION) >= 1.1) {
+		Epoxy.View.prototype.initialize = function() {
+      this.on('afterRender', function() {
+        this.applyBindings();
+      }, this);
+    };
+	}
+	else {
+		Epoxy.View.prototype.constructor = function(options) {
+			_.extend(this, _.pick(options||{}, viewProps));
+			viewSuper(this, 'constructor', arguments);
+			this.applyBindings();
+		};
+	}
 
 	// Epoxy.View -> Private
 	// ---------------------
