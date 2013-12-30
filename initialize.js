@@ -30,18 +30,16 @@ function(boot, loading) {
     }
 
     // JQuery Ajax global settings
-    var beforeSend = $.ajaxSettings.beforeSend,
-        complete = $.ajaxSettings.complete;
+    var beforeSend = $.ajaxSettings().beforeSend,
+        complete = $.ajaxSettings().complete;
     $.ajaxSetup({
       beforeSend: function() {
-        if(!this.url) console.log(this);
         if(this.url.indexOf(app.baseUrl) === 0 || this.url.indexOf(app.root + app.prefix) === 0) {
           loading(false, null, this.url);
         }
         return beforeSend && beforeSend.apply(this, _.toArray(arguments));
       },
       complete: function() {
-        if(!this.url) console.log(this);
         if(this.url.indexOf(app.baseUrl) === 0 || this.url.indexOf(app.root + app.prefix) === 0) {
           loading(true, null, this.url);
         }
