@@ -50,27 +50,24 @@
 		}
 	};
 
-	// Partial application for calling method implementations of a super-class object:
-	function superClass(sup) {
-		return function(instance, method, args) {
-			return sup.prototype[ method ].apply(instance, args);
-		};
+	// Calls method implementations of a super-class object:
+	function _super(instance, method, args) {
+		return instance._super.prototype[method].apply(instance, args);
 	}
-
 
 	// Epoxy.Model
 	// -----------
 	var modelMap;
-	var modelSuper = superClass(Backbone.Model);
 	var modelProps = ['computeds'];
 
 	Epoxy.Model = Backbone.Model.extend({
+		_super: Backbone.Model,
 
 		// Backbone.Model constructor override:
 		// configures computed model attributes around the underlying native Backbone model.
 		constructor: function(attributes, options) {
 			_.extend(this, _.pick(options||{}, modelProps));
-			modelSuper(this, 'constructor', arguments);
+			_super(this, 'constructor', arguments);
 			this.initComputeds(attributes, options);
 		},
 
@@ -95,7 +92,7 @@
 			}
 
 			// Default to native Backbone.Model get operation:
-			return modelSuper(this, 'get', arguments);
+			return _super(this, 'get', arguments);
 		},
 
 		// Backbone.Model.set() override:
@@ -115,6 +112,9 @@
 			// Default options definition:
 			options = options || {};
 
+			// Create store for capturing computed change events:
+			var computedEvents = this._setting = [];
+
 			// Attempt to set computed attributes while not unsetting:
 			if (!options.unset) {
 				// All param properties are tested against computed setters,
@@ -123,14 +123,29 @@
 				params = deepModelSet(this, params, {}, []);
 			}
 
+			// Remove computed change events store:
+			delete this._setting;
+
 			// Pass all resulting set params along to the underlying Backbone Model.
-			return modelSuper(this, 'set', [params, options]);
+			var result = _super(this, 'set', [params, options]);
+
+			// Dispatch all outstanding events:
+			if (!options.silent) {
+				_.each(computedEvents, function(evt) {
+					this.trigger.apply(this, evt);
+				}, this);
+
+				if (!this.hasChanged()) {
+					this.trigger('change', this);
+				}
+			}
+			return result;
 		},
 
 		// Backbone.Model.toJSON() override:
 		// adds a 'computed' option, specifying to include computed attributes.
 		toJSON: function(options) {
-			var json = modelSuper(this, 'toJSON', arguments);
+			var json = _super(this, 'toJSON', arguments);
 
 			if (options && options.computed) {
 				_.each(this.c(), function(computed, attribute) {
@@ -145,7 +160,7 @@
 		// clears all computed attributes before destroying.
 		destroy: function() {
 			this.clearComputeds();
-			return modelSuper(this, 'destroy', arguments);
+			return _super(this, 'destroy', arguments);
 		},
 
 		// Computed namespace manager:
@@ -456,7 +471,14 @@
 		change: function(value) {
 			if (!_.isEqual(value, this.value)) {
 				this.value = value;
-				this.model.trigger('change:'+this.name+' change', this.model);
+				var evt = ['change:'+this.name, this.model, value];
+
+				if (this.model._setting) {
+					this.model._setting.push(evt);
+				} else {
+					evt[0] += ' change';
+					this.model.trigger.apply(this.model, evt);
+				}
 			}
 		},
 
@@ -921,9 +943,17 @@
 		})
 	};
 
+	// Define allowed binding parameters:
+	// These params may be included in binding handlers without throwing errors.
+	var allowedParams = {
+		events: 1,
+		optionsDefault: 1,
+		optionsEmpty: 1
+	};
 
 	// Define binding API:
 	Epoxy.binding = {
+		allowedParams: allowedParams,
 		addHandler: function(name, handler) {
 			bindingHandlers[ name ] = makeHandler(handler);
 		},
@@ -942,30 +972,29 @@
 	// Epoxy.View
 	// ----------
 	var viewMap;
-	var viewSuper = superClass(Backbone.View);
 	var viewProps = ['viewModel', 'bindings', 'bindingFilters', 'bindingHandlers', 'bindingSources', 'computeds'];
 
-
 	Epoxy.View = Backbone.View.extend({
+		_super: Backbone.View,
 
 		/* REPLACED constructor with initialize
-			BY RUBEN STOLK FOR BACKBONE 1.1.0 COMPATIBILITY
+      BY RUBEN STOLK FOR BACKBONE 1.1.0 COMPATIBILITY
 
-		// Backbone.View constructor override:
-		// sets up binding controls around call to super.
-		constructor: function(options) {
-			_.extend(this, _.pick(options||{}, viewProps));
-			viewSuper(this, 'constructor', arguments);
-			this.applyBindings();
-		},
+    // Backbone.View constructor override:
+    // sets up binding controls around call to super.
+    constructor: function(options) {
+      _.extend(this, _.pick(options||{}, viewProps));
+      viewSuper(this, 'constructor', arguments);
+      this.applyBindings();
+    },
 
-		*/
+    */
 
-		initialize: function() {
-			this.on('afterRender', function() {
-				this.applyBindings();
-			}, this);
-		},
+    initialize: function() {
+      this.on('afterRender', function() {
+        this.applyBindings();
+      }, this);
+    },
 
 		// Bindings list accessor:
 		b: function() {
@@ -1063,7 +1092,7 @@
 
 				// Create bindings for each matched element:
 				queryViewForSelector(self, '['+declarations+']').each(function() {
-					var $element = $(this);
+					var $element = Backbone.$(this);
 					bindElementToView(self, $element, $element.attr(declarations), context, handlers, filters);
 				});
 			}
@@ -1094,7 +1123,7 @@
 		// unbinds the view before performing native removal tasks.
 		remove: function() {
 			this.removeBindings();
-			viewSuper(this, 'remove', arguments);
+			_super(this, 'remove', arguments);
 		}
 
 	}, mixins);
@@ -1226,6 +1255,8 @@
 			if (handlers.hasOwnProperty(handlerName)) {
 				// Create and add binding to the view's list of handlers:
 				view.b().push(new EpoxyBinding($element, handlers[handlerName], accessor, events, context, bindings));
+			} else if (!allowedParams.hasOwnProperty(handlerName)) {
+				throw('binding handler "'+ handlerName +'" is not defined.');
 			}
 		});
 	}

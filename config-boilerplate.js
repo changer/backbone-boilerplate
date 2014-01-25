@@ -60,6 +60,7 @@ requirejs.config({
 
     bootstrap:          ['jquery'],
     bootstrap3:         ['jquery'],
+    hammer:             ['jquery'],
     notify:             ['jquery'],
     bootbox:            ['bootstrap3'],
     select2:            ['jquery'],
