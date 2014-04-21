@@ -54,6 +54,8 @@ function(boot, loading) {
 
     // Partial templates
     app.fetchTemplate = function(path, callback) {
+      // Replace upward paths
+      path = path.replace(/\/[^\/]+\/\.\.\//g, '/');
       var variable = app.templateContextName || 'context';
       var url = app.root + path;
       if(JST[path]) {
