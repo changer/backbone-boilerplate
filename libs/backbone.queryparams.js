@@ -1,4 +1,7 @@
-(function(_, Backbone) {
+define([
+  'underscore',
+  'backbone'
+], function(_, Backbone) {
 
 // Require Underscore and Backbone if there's a `require` function.
 // This makes `backbone.queryparam` work on the server or when using
@@ -306,4 +309,4 @@ function iterateQueryString(queryString, callback) {
   });
 }
 
-})(typeof _ === 'undefined' ? null : _, typeof Backbone === 'undefined' ? null : Backbone);
+});

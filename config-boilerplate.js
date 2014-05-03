@@ -50,7 +50,7 @@ requirejs.config({
     },
 
     underscore: {
-        exports: '_'
+      exports: '_'
     },
 
     layoutmanager:      ['backbone', 'underscore'],

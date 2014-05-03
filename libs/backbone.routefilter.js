@@ -1,8 +1,10 @@
 /*! backbone.routefilter - v0.2.0 - 2013-02-16
 * https://github.com/boazsender/backbone.routefilter
 * Copyright (c) 2013 Boaz Sender; Licensed MIT */
-
-(function(Backbone, _) {
+define([
+  'backbone',
+  'underscore'
+], function(Backbone, _) {
 
   // Save a reference to the original route method to be called
   // after we pave it over.
@@ -117,4 +119,4 @@
 
   });
 
-}(Backbone, _));
+});
