@@ -7,7 +7,6 @@
 
 (function(root, factory) {
 
-
 	if (typeof exports !== 'undefined') {
 		// Define as CommonJS export:
 		module.exports = factory(require("underscore"), require("backbone"));
@@ -603,16 +602,23 @@
 
 		// Collection: write-only. Manages a list of views bound to a Backbone.Collection.
 		collection: makeHandler({
-			init: function($element, collection) {
-				if (!isCollection(collection) || !isFunction(collection.view)) {
-					throw('Binding "collection" requires a Collection with a "view" constructor.');
-				}
+			init: function($element, collection, context) {
+				if (!isCollection(collection)) throw('Binding "collection" requires a Collection.');
+
+				/* CHANGED by RUBEN, support legacy view property */
+				//if (!isFunction(this.view.itemView)) throw('Binding "collection" requires an itemView.');
+				if (!isFunction(this.view.itemView) && !isFunction(collection.view)) throw('Binding "collection" requires an itemView.');
 				this.v = {};
 			},
 			set: function($element, collection, target) {
 
 				var view;
 				var views = this.v;
+
+				/* CHANGED by RUBEN, support legacy view property */
+				//var ItemView = this.view.itemView;
+				var ItemView = this.view.itemView || collection.view;
+
 				var models = collection.models;
 
 				// Cache and reset the current dependency graph state:
@@ -632,7 +638,7 @@
 					if (!views.hasOwnProperty(target.cid)) {
 
 						// Add new view:
-						views[ target.cid ] = view = new collection.view({model: target});
+						views[ target.cid ] = view = new ItemView({model: target});
 						var index = _.indexOf(models, target);
 						var $children = $element.children();
 
@@ -674,7 +680,7 @@
 						// Reset with new views:
 						this.clean();
 						collection.each(function(model) {
-							views[ model.cid ] = view = new collection.view({model: model});
+							views[ model.cid ] = view = new ItemView({model: model});
 							frag.appendChild(view.el);
 						});
 					}
@@ -1044,6 +1050,14 @@
 			self.viewModel = addSourceToViewContext(self, context, options, 'viewModel');
 			self.collection = addSourceToViewContext(self, context, options, 'collection');
 
+
+			/* REMOVED by RUBEN in favor of native legacy implementation
+			// Support legacy "collection.view" API for rendering list items:
+			if (self.collection && self.collection.view) {
+				self.itemView = self.collection.view;
+			}
+			*/
+
 			// Add all additional data sources:
 			if (sources) {
 				_.each(sources, function(source, sourceName) {
@@ -1254,7 +1268,7 @@
 			// Validate that each defined handler method exists before binding:
 			if (handlers.hasOwnProperty(handlerName)) {
 				// Create and add binding to the view's list of handlers:
-				view.b().push(new EpoxyBinding($element, handlers[handlerName], accessor, events, context, bindings));
+				view.b().push(new EpoxyBinding(view, $element, handlers[handlerName], accessor, events, context, bindings));
 			} else if (!allowedParams.hasOwnProperty(handlerName)) {
 				throw('binding handler "'+ handlerName +'" is not defined.');
 			}
@@ -1285,11 +1299,14 @@
 	// Epoxy.View -> Binding
 	// ---------------------
 	// The binding object connects an element to a bound handler.
+	// @param view: the view object this binding is attached to.
 	// @param $element: the target element (as jQuery) to bind.
 	// @param handler: the handler object to apply (include all handler methods).
 	// @param accessor: an accessor method from the binding context that exchanges data with the model.
-	// @param options: a compiled set of binding options that was pulled from the declaration.
-	function EpoxyBinding($element, handler, accessor, events, context, bindings) {
+	// @param events:
+	// @param context:
+	// @param bindings:
+	function EpoxyBinding(view, $element, handler, accessor, events, context, bindings) {
 
 		var self = this;
 		var tag = ($element[0].tagName).toLowerCase();
@@ -1299,6 +1316,7 @@
 			self.set(self.$el, readAccessor(accessor), target);
 		};
 
+    self.view = view;
 		self.$el = $element;
 		self.evt = events;
 		_.extend(self, handler);
@@ -1348,7 +1366,7 @@
 			this.clean();
 			this.stopListening();
 			this.$el.off(this.evt);
-			this.$el = null;
+			this.$el = this.view = null;
 		}
 	});
 

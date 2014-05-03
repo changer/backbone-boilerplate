@@ -83,7 +83,7 @@ function(boot, loading) {
           }
           attr = _(_(context || {}).clone()).extend(attr || {});
           attr.partial = partial;
-          path = Backbone.Layout.prototype.options.prefix + path + '.html';
+          path = Backbone.Layout.prototype.prefix + path + '.html';
           var result = $($.trim(app.fetchTemplate(path).call(context, attr))).addClass(className);
           return $('<div />').append(result).html();
         };

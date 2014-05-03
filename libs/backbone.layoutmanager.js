@@ -1,11 +1,10 @@
 /*!
- * backbone.layoutmanager.js v0.9.4
+ * backbone.layoutmanager.js v0.9.5
  * Copyright 2013, Tim Branyen (@tbranyen)
  * backbone.layoutmanager.js may be freely distributed under the MIT license.
  */
 (function(window, factory) {
   "use strict";
-  var Backbone = window.Backbone;
 
   // AMD. Register as an anonymous module.  Wrap in function so we have access
   // to root via `this`.
@@ -15,18 +14,28 @@
     });
   }
 
+  // Node. Does not work with strict CommonJS, but only CommonJS-like
+  // environments that support module.exports, like Node.
+  else if (typeof exports === "object") {
+    var Backbone = require("backbone");
+    var _ = require("underscore");
+    // In a browserify build, since this is the entry point, Backbone.$
+    // is not bound. Ensure that it is.
+    Backbone.$ = Backbone.$ || require("jquery");
+
+    module.exports = factory.call(window, Backbone, _, Backbone.$);
+  }
+
   // Browser globals.
-  Backbone.Layout = factory.call(window, Backbone, window._, Backbone.$);
+  else {
+    factory.call(window, window.Backbone, window._, window.Backbone.$);
+  }
 }(typeof global === "object" ? global : this, function (Backbone, _, $) {
 "use strict";
 
 // Create a reference to the global object. In browsers, it will map to the
 // `window` object; in Node, it will be `global`.
 var window = this;
-
-// Hoisted, referenced at the bottom of the source.  This caches a list of all
-// LayoutManager options at definition time.
-var keys;
 
 // Maintain reference to the original constructor.
 var ViewConstructor = Backbone.View;
@@ -40,16 +49,17 @@ var trim = String.prototype.trim ?
   $.trim;
 
 // LayoutManager is a wrapper around a `Backbone.View`.
+// Backbone.View.extend takes options (protoProps, staticProps)
 var LayoutManager = Backbone.View.extend({
-  _render: function(options) {
+  _render: function() {
     // Keep the view consistent between callbacks and deferreds.
     var view = this;
     // Shorthand the manager.
     var manager = view.__manager__;
     // Cache these properties.
-    var beforeRender = options.beforeRender;
+    var beforeRender = view.beforeRender;
     // Create a deferred instead of going off
-    var def = options.deferred();
+    var def = view.deferred();
 
     // Ensure all nested Views are properly scrubbed if re-rendering.
     if (view.hasRendered) {
@@ -66,7 +76,7 @@ var LayoutManager = Backbone.View.extend({
       view.trigger("beforeRender", view);
 
       // Render!
-      view._viewRender(options, manager).render().then(function() {
+      view._viewRender(manager).render().then(function() {
         // Complete this deferred once resolved.
         def.resolve();
       });
@@ -87,7 +97,7 @@ var LayoutManager = Backbone.View.extend({
 
   // This function is responsible for pairing the rendered template into the
   // DOM element.
-  _applyTemplate: function(rendered, options, manager, def) {
+  _applyTemplate: function(rendered, manager, def) {
     // Actually put the rendered contents into the element.
     if (_.isString(rendered)) {
       // If no container is specified, we must replace the content.
@@ -104,7 +114,7 @@ var LayoutManager = Backbone.View.extend({
         // Don't delegate events here - we'll do that in resolve()
         this.setElement(rendered, false);
       } else {
-        options.html(this.$el, rendered);
+        this.html(this.$el, rendered);
       }
     }
 
@@ -115,7 +125,7 @@ var LayoutManager = Backbone.View.extend({
   // Creates a deferred and returns a function to call when finished.
   // This gets passed to all _render methods.  The `root` value here is passed
   // from the `manage(this).render()` line in the `_render` function
-  _viewRender: function(options, manager) {
+  _viewRender: function(manager) {
     var url, contents, def;
     var root = this;
 
@@ -132,7 +142,7 @@ var LayoutManager = Backbone.View.extend({
         delete manager.isAsync;
         delete manager.callback;
 
-        root._applyTemplate(rendered, options, manager, def);
+        root._applyTemplate(rendered, manager, def);
       };
 
       // Ensure the cache is up-to-date.
@@ -140,12 +150,12 @@ var LayoutManager = Backbone.View.extend({
 
       // Render the View into the el property.
       if (template) {
-        rendered = options.renderTemplate.call(root, template, context);
+        rendered = root.renderTemplate.call(root, template, context);
       }
 
       // If the function was synchronous, continue execution.
       if (!manager.isAsync) {
-        root._applyTemplate(rendered, options, manager, def);
+        root._applyTemplate(rendered, manager, def);
       }
     }
 
@@ -154,11 +164,11 @@ var LayoutManager = Backbone.View.extend({
       // when `manage(this).render` is called.  Returns a promise that can be
       // used to know when the element has been rendered into its parent.
       render: function() {
-        var context = root.serialize || options.serialize;
-        var template = root.template || options.template;
+        var context = root.serialize;
+        var template = root.template;
 
         // Create a deferred specifically for fetching.
-        def = options.deferred();
+        def = root.deferred();
 
         // If data is a function, immediately call it.
         if (_.isFunction(context)) {
@@ -177,7 +187,7 @@ var LayoutManager = Backbone.View.extend({
 
         // Set the url to the prefix + the view's template property.
         if (typeof template === "string") {
-          url = options.prefix + template;
+          url = root.prefix + template;
         }
 
         // Check if contents are already cached and if they are, simply process
@@ -190,14 +200,14 @@ var LayoutManager = Backbone.View.extend({
 
         // Fetch layout and template contents.
         if (typeof template === "string") {
-          contents = options.fetchTemplate.call(root, options.prefix +
+          contents = root.fetchTemplate.call(root, root.prefix +
             template);
         // If the template is already a function, simply call it.
         } else if (typeof template === "function") {
           contents = template;
         // If its not a string and not undefined, pass the value to `fetch`.
         } else if (template != null) {
-          contents = options.fetchTemplate.call(root, template);
+          contents = root.fetchTemplate.call(root, template);
         }
 
         // If the function was synchronous, continue execution.
@@ -248,8 +258,7 @@ var LayoutManager = Backbone.View.extend({
   renderViews: function() {
     var root = this;
     var manager = root.__manager__;
-    var options = root.getAllOptions();
-    var newDeferred = options.deferred();
+    var newDeferred = root.deferred();
 
     // Collect all promises from rendering the child views and wait till they
     // all complete.
@@ -262,7 +271,7 @@ var LayoutManager = Backbone.View.extend({
 
     // Once all child views have completed rendering, resolve parent deferred
     // with the correct context.
-    options.when(promises).then(function() {
+    root.when(promises).then(function() {
       newDeferred.resolveWith(root, [root]);
     });
 
@@ -365,7 +374,7 @@ var LayoutManager = Backbone.View.extend({
   // Must definitely wrap any render method passed in or defaults to a
   // typical render function `return layout(this).render()`.
   setView: function(name, view, insert) {
-    var manager, options, selector;
+    var manager, selector;
     // Parent view, the one you are setting a View on.
     var root = this;
 
@@ -387,9 +396,6 @@ var LayoutManager = Backbone.View.extend({
         "Backbone.View instances.");
     }
 
-    // Assign options.
-    options = view.getAllOptions();
-
     // Add reference to the parentView.
     manager.parent = root;
 
@@ -399,15 +405,11 @@ var LayoutManager = Backbone.View.extend({
     // Code path is less complex for Views that are not being inserted.  Simply
     // remove existing Views and bail out with the assignment.
     if (!insert) {
-      // If the View we are adding has already been rendered, simply inject it
-      // into the parent.
-      if (view.hasRendered) {
-        // Apply the partial.
-        options.partial(root.$el, view.$el, root.__manager__, manager);
+      // Ensure remove is called only when swapping in a new view (when the
+      // view is the same, it does not need to be removed or cleaned up).
+      if (root.getView(name) !== view) {
+        root.removeView(name);
       }
-
-      // Ensure remove is called when swapping View's.
-      root.removeView(name);
 
       // Assign to main views object and return for chainability.
       return root.views[selector] = view;
@@ -450,11 +452,10 @@ var LayoutManager = Backbone.View.extend({
   // once all subviews and main view have been rendered into the view.el.
   render: function() {
     var root = this;
-    var options = root.getAllOptions();
     var manager = root.__manager__;
     var parent = manager.parent;
     var rentManager = parent && parent.__manager__;
-    var def = options.deferred();
+    var def = root.deferred();
 
     // Triggered once the render has succeeded.
     function resolve() {
@@ -464,17 +465,16 @@ var LayoutManager = Backbone.View.extend({
       _.each(root.views, function(views, selector) {
         // Fragments aren't used on arrays of subviews.
         if (_.isArray(views)) {
-          options.htmlBatch(root, views, selector);
+          root.htmlBatch(root, views, selector);
         }
       });
 
       // If there is a parent and we weren't attached to it via the previous
       // method (single view), attach.
       if (parent && !manager.insertedViaFragment) {
-        if (!options.contains(parent.el, root.el)) {
+        if (!root.contains(parent.el, root.el)) {
           // Apply the partial using parent's html() method.
-          parent.getAllOptions().partial(parent.$el, root.$el, rentManager,
-            manager);
+          parent.partial(parent.$el, root.$el, rentManager, manager);
         }
       }
 
@@ -500,7 +500,7 @@ var LayoutManager = Backbone.View.extend({
       // and setting the hasRendered flag.
       function completeRender() {
         var console = window.console;
-        var afterRender = options.afterRender;
+        var afterRender = root.afterRender;
 
         if (afterRender) {
           afterRender.call(root, root);
@@ -514,7 +514,7 @@ var LayoutManager = Backbone.View.extend({
         if (manager.noel && root.$el.length > 1) {
           // Do not display a warning while testing or if warning suppression
           // is enabled.
-          if (_.isFunction(console.warn) && !options.suppressWarnings) {
+          if (_.isFunction(console.warn) && !root.suppressWarnings) {
             console.warn("`el: false` with multiple top level elements is " +
               "not supported.");
 
@@ -543,11 +543,10 @@ var LayoutManager = Backbone.View.extend({
 
     // Actually facilitate a render.
     function actuallyRender() {
-      var options = root.getAllOptions();
 
       // The `_viewRender` method is broken out to abstract away from having
       // too much code in `actuallyRender`.
-      root._render(options).done(function() {
+      root._render().done(function() {
         // If there are no children to worry about, complete the render
         // instantly.
         if (!_.keys(root.views).length) {
@@ -566,7 +565,7 @@ var LayoutManager = Backbone.View.extend({
             // Mark each subview's manager so they don't attempt to attach by
             // themselves.  Return a single promise representing the entire
             // render.
-            return options.when(_.map(view, function(subView) {
+            return root.when(_.map(view, function(subView) {
               subView.__manager__.insertedViaFragment = true;
               return subView.render().__manager__.renderDeferred;
             }));
@@ -579,7 +578,7 @@ var LayoutManager = Backbone.View.extend({
 
         // Once all nested Views have been rendered, resolve this View's
         // deferred.
-        options.when(promises).done(resolve);
+        root.when(promises).done(resolve);
       });
     }
 
@@ -612,14 +611,10 @@ var LayoutManager = Backbone.View.extend({
 
     // Call the original remove function.
     return this._remove.apply(this, arguments);
-  },
-
-  // Merge instance and global options.
-  getAllOptions: function() {
-    // Instance overrides take precedence, fallback to prototype options.
-    return _.extend({}, this, LayoutManager.prototype.options, this.options);
   }
 },
+
+// Static Properties
 {
   // Clearable cache.
   _cache: {},
@@ -706,8 +701,6 @@ var LayoutManager = Backbone.View.extend({
   cleanViews: function(views) {
     // Clear out all existing views.
     _.each(aConcat.call([], views), function(view) {
-      var cleanup;
-
       // Remove all custom events attached to this View.
       view.unbind();
 
@@ -726,16 +719,15 @@ var LayoutManager = Backbone.View.extend({
 
       // If a custom cleanup method was provided on the view, call it after
       // the initial cleanup is done
-      cleanup = view.getAllOptions().cleanup;
-      if (_.isFunction(cleanup)) {
-        cleanup.call(view);
+      if (_.isFunction(view.cleanup)) {
+        view.cleanup();
       }
     });
   },
 
   // This static method allows for global configuration of LayoutManager.
   configure: function(options) {
-    _.extend(LayoutManager.prototype.options, options);
+    _.extend(LayoutManager.prototype, options);
 
     // Allow LayoutManager to manage Backbone.View.prototype.
     if (options.manage) {
@@ -755,6 +747,10 @@ var LayoutManager = Backbone.View.extend({
 
   // Configure a View to work with the LayoutManager plugin.
   setupView: function(views, options) {
+    // Ensure that options is always an object, and clone it so that
+    // changes to the original object don't screw up this view.
+    options = _.extend({}, options);
+
     // Set up all Views passed.
     _.each(aConcat.call([], views), function(view) {
       // If the View has already been setup, no need to do it again.
@@ -762,9 +758,8 @@ var LayoutManager = Backbone.View.extend({
         return;
       }
 
-      var views, declaredViews, viewOptions;
+      var views, declaredViews;
       var proto = LayoutManager.prototype;
-      var viewOverrides = _.pick(view, keys);
 
       // Ensure necessary properties are set.
       _.defaults(view, {
@@ -788,20 +783,11 @@ var LayoutManager = Backbone.View.extend({
       // Mix in all LayoutManager prototype properties as well.
       }, LayoutManager.prototype);
 
-      // Extend the options with the prototype and passed options.
-      options = view.options = _.defaults(options || {}, view.options,
-        proto.options);
-
-      // Ensure view events are properly copied over.
-      viewOptions = _.pick(options, aConcat.call(["events", "sections"],
-        _.values(options.events || {})));
+      // Assign passed options.
+      view.options = options;
 
       // Merge the View options into the View.
-      _.extend(view, viewOptions);
-
-      // Pick out the specific properties that can be dynamically added at
-      // runtime and ensure they are available on the view object.
-      _.extend(options, viewOverrides);
+      _.extend(view, options);
 
       // By default the original Remove function is the Backbone.View one.
       view._remove = Backbone.View.prototype.remove;
@@ -838,19 +824,11 @@ var LayoutManager = Backbone.View.extend({
         // Set the declared Views.
         view.setViews(declaredViews);
       }
-
-      // If a template is passed use that instead.
-      if (view.options.template) {
-        view.options.template = options.template;
-      // Ensure the template is mapped over.
-      } else if (view.template) {
-        options.template = view.template;
-      }
     });
   }
 });
 
-LayoutManager.VERSION = "0.9.4";
+LayoutManager.VERSION = "0.9.5";
 
 // Expose through Backbone object.
 Backbone.Layout = LayoutManager;
@@ -892,7 +870,7 @@ Backbone.View.extend = ViewConstructor.extend;
 Backbone.View.prototype = ViewConstructor.prototype;
 
 // Default configuration options; designed to be overriden.
-LayoutManager.prototype.options = {
+var defaultOptions = {
   // Prefix template/layout paths.
   prefix: "",
 
@@ -909,7 +887,7 @@ LayoutManager.prototype.options = {
 
   // By default, render using underscore's templating and trim output.
   renderTemplate: function(template, context) {
-    return trim(template(context));
+    return trim(template.call(this, context));
   },
 
   // By default, pass model attributes to the templates
@@ -998,8 +976,8 @@ LayoutManager.prototype.options = {
   }
 };
 
-// Maintain a list of the keys at define time.
-keys = _.keys(LayoutManager.prototype.options);
+// Extend LayoutManager with default options.
+_.extend(LayoutManager.prototype, defaultOptions);
 
 // Assign `LayoutManager` object for AMD loaders.
 return LayoutManager;
