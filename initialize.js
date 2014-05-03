@@ -218,6 +218,9 @@ function(boot, loading) {
 
         if((/^(content|file):\/\/+/.test(href.prop) || href.prop.slice(0, root.length) === root)) {
           e.preventDefault();
+          if(e.gesture) {
+            e.gesture.preventDefault();
+          }
           Backbone.history.reloaded = false;
           if(options.alwaysReload && Backbone.history.fragment === url.replace(/^\/+/, '')) {
             Backbone.history.reloaded = true;
@@ -231,10 +234,10 @@ function(boot, loading) {
       });
 
       if(app.mobile) {
-        body.on('click', options.bypassSelectors, function(e) {
+        html.on('click', function(e) {
           e.preventDefault();
-        });
-        html.addClass('untouched');
+          e.stopPropagation();
+        }).addClass('untouched');
         body.one('touchstart', function() {
           html.removeClass('untouched');
         });
