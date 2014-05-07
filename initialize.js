@@ -13,7 +13,7 @@ function(boot, loading) {
 
   var html = $('html'), body = $('body');
 
-  html.hammer({ stop_browser_behavior: false });
+  html.hammer({ behavior: false });
 
   return function(app) {
 
