@@ -189,10 +189,12 @@ function(boot, loading) {
         html.addClass('non-embedded');
       }
 
+      var defaultBypass = 'a[href]:not([data-bypass])';
+
       options = options || {};
       options.root = options.root || '/';
       options.pushState = options.pushState === false ? false : !app.embedded;
-      options.bypassSelectors = options.bypassSelectors || 'a[href]:not([data-bypass])';
+      options.bypassSelectors = options.bypassSelectors || defaultBypass;
       options.alwaysReload = options.alwaysReload || false;
       app.router = new router();
 
@@ -235,8 +237,10 @@ function(boot, loading) {
 
       if(app.mobile) {
         html.on('click', function(e) {
-          e.preventDefault();
-          e.stopPropagation();
+          if($(e.target).closest(defaultBypass).length) {
+            e.preventDefault();
+            e.stopPropagation();
+          }
         }).addClass('untouched');
         body.one('touchstart', function() {
           html.removeClass('untouched');
